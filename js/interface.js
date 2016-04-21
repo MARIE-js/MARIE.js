@@ -563,3 +563,7 @@ window.addEventListener("beforeunload", function() {
     window.localStorage.setItem("marie-breakpoints", JSON.stringify(breakpoints));
     return;
 });
+
+uploadButton.addEventListener("click", function() {
+	fileInput.click();
+})
