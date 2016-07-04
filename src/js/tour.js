@@ -1,9 +1,11 @@
-$("#tour").click( function() {
+$(document).ready( function(){
     //check if LocalStorage Object exists, if not create new localStorage obj
     if (localStorage.getItem("tourComplete") === null) {
         localStorage.setItem("tourComplete", false);
     }
+})
 
+$("#tour").click( function() {
     //if localStorage item is equal to false excute tour code
     if (localStorage.getItem("tourComplete") === false) {
         // Instance the tour
