@@ -11,48 +11,15 @@
                     </div>
                     <div id="register-container">
                         <table id="registers">
+                            <% var registers = ["ac", "ir", "mar", "mbr", "pc", "in", "out"] %>
+                            <% for(var i = 0; i < registers.length; i++) { %>
                             <tr>
-                                <th>AC</th>
+                                <th><%= registers[i].toUpperCase() %></th>
                             </tr>
                             <tr>
-                                <td id="ac">0000</td>
+                                <td id="<%= registers[i] %>">000<%= ["pc", "mar"].indexOf(registers[i]) < 0 ? "0" : "" %></td>
                             </tr>
-                            <tr>
-                                <th>IR</th>
-                            </tr>
-                            <tr>
-                                <td id="ir">0000</td>
-                            </tr>
-                            <tr>
-                                <th>MAR</th>
-                            </tr>
-                            <tr>
-                                <td id="mar">000</td>
-                            </tr>
-                            <tr>
-                                <th>MBR</th>
-                            </tr>
-                            <tr>
-                                <td id="mbr">0000</td>
-                            </tr>
-                            <tr>
-                                <th>PC</th>
-                            </tr>
-                            <tr>
-                                <td id="pc">000</td>
-                            </tr>
-                            <tr>
-                                <th>IN</th>
-                            </tr>
-                            <tr>
-                                <td id="in">0000</td>
-                            </tr>
-                            <tr>
-                                <th>OUT</th>
-                            </tr>
-                            <tr>
-                                <td id="out">0000</td>
-                            </tr>
+                            <% } %>
                         </table>
                     </div>
                     <div id="tab-container">
@@ -90,7 +57,7 @@
                 </div>
                 <div id="datapath" class="overlay overlay-view">
                     <div class="popup">
-                        <a class="close" href="#">&times;</a>
+                        <a id="close-datapath" class="close">&times;</a>
                         <div class="container">
                             <div id="datapath-too-fast-warning" class="alert alert-warning">
                                 <strong>Note: </strong> MARIE.js is running too fast to update datapath visualiser. Increase delay to at least 1000 ms, or set simulator to stepping mode.

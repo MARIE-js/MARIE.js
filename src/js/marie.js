@@ -113,10 +113,6 @@ MarieSim.prototype.regSet = function(target, source, mask) {
             ].join(" "));
         }
 
-        if(this.debug) {
-            return;
-        }
-
         oldValue = this[target];
         this[target] = uintToInt(this.memory[this.mar].contents);
 
@@ -130,7 +126,8 @@ MarieSim.prototype.regSet = function(target, source, mask) {
             this.onRegWrite.call(this, {
                 register: target,
                 oldValue: oldValue,
-                newValue: this[target]
+                newValue: this[target],
+                type: "set"
             });
         }
     }
@@ -143,10 +140,6 @@ MarieSim.prototype.regSet = function(target, source, mask) {
             ].join(" "));
         }
 
-        if(this.debug) {
-            return;
-        }
-
         var oldCell = this.memory[this.mar].contents;
 
         this.memory[this.mar] = {
@@ -156,7 +149,8 @@ MarieSim.prototype.regSet = function(target, source, mask) {
         if (this.onRegRead) {
             this.onRegRead.call(this, {
                 register: source,
-                value: this[source]
+                value: this[source],
+                type: "set"
             });
         }
 
@@ -188,10 +182,6 @@ MarieSim.prototype.regSet = function(target, source, mask) {
             }
         }
 
-        if(this.debug) {
-            return;
-        }
-
         var src = typeof source == "string" ? this[source] : source;
         var msk = mask !== undefined ? mask : 0xFFFF;
 
@@ -202,7 +192,8 @@ MarieSim.prototype.regSet = function(target, source, mask) {
         if (typeof source == "string" && this.onRegRead) {
             this.onRegRead.call(this, {
                 register: source,
-                value: this[source]
+                value: this[source],
+                type: "set"
             });
         }
 
@@ -210,7 +201,8 @@ MarieSim.prototype.regSet = function(target, source, mask) {
             this.onRegWrite.call(this, {
                 register: target,
                 oldValue: oldValue,
-                newValue: this[target]
+                newValue: this[target],
+                type: "set"
             });
         }
     }
@@ -230,10 +222,6 @@ MarieSim.prototype.regAdd = function(target, source, subtract) {
             ].join(" "));
         }
 
-        if (this.debug) {
-            return;
-        }
-
         this[target] -= typeof source == "string" ? this[source] : source;
     }
     else {
@@ -247,10 +235,6 @@ MarieSim.prototype.regAdd = function(target, source, subtract) {
             ].join(" "));
         }
 
-        if (this.debug) {
-            return;
-        }
-
         this[target] += typeof source == "string" ? this[source] : source;
     }
 
@@ -258,13 +242,15 @@ MarieSim.prototype.regAdd = function(target, source, subtract) {
         if(typeof source == "string") {
             this.onRegRead.call(this, {
                 register: source,
-                value: this[source]
+                value: this[source],
+                type: subtract ? "subtract" : "add"
             });
         } else {
             // source is the target
             this.onRegRead.call(this, {
                 register: target,
-                value: this[target]
+                value: this[target],
+                type: subtract ? "subtract" : "add"
             });
         }
     }
@@ -273,7 +259,8 @@ MarieSim.prototype.regAdd = function(target, source, subtract) {
         this.onRegWrite.call(this, {
             register: target,
             oldValue: oldValue,
-            newValue: this[target]
+            newValue: this[target],
+            type: subtract ? "subtract" : "add"
         });
     }
 };
@@ -287,7 +274,6 @@ MarieSim.prototype.restart = function() {
     this.in = 0x0000;
     this.out = 0x0000;
     this.halted = false;
-    this.debug = false;
     this.stepper = null;
     this.paused = false;
     this.microStepper = null;
@@ -348,14 +334,16 @@ MarieSim.prototype.decode = function() {
 
     for (var op in MarieSim.prototype.operators) {
         if (MarieSim.prototype.operators[op].opcode == opcode) {
+            if (this.onRegLog) {
+                this.onRegLog(["Decoded opcode", opcode.toString(16).toUpperCase(), "as", op].join(" "));
+            }
+
             if (this.onDecode) {
                 this.onDecode.call(this, this.opcode, op);
             }
 
             this.opcode = op;
-            if (this.onRegLog) {
-                this.onRegLog(["Decoded opcode", opcode.toString(16).toUpperCase(), "as", op].join(" "));
-            }
+
             return;
         }
     }

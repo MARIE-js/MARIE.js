@@ -28,6 +28,50 @@
   <g
      transform="translate(4.4082332,-323.16619)"
      id="layer1">
+    <path
+       d="m 437.32461,434.13927 -343.761809,0.7504"
+       id="alu_wire_1"
+       style="fill:none;stroke:#000000;stroke-width:2.99999976;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       d="M 442.58689,423.86841 94.84344,424.61919"
+       id="alu_wire_0"
+       style="fill:none;stroke:#000000;stroke-width:2.99999976;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <g
+       id="data_bus"
+       style="opacity:0.5">
+      <path
+         d="m 642.26272,480.92371 0,38.44707"
+         id="path5760"
+         style="fill:none;stroke:#008000;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         d="m 574.93964,480.92371 0,38.3801"
+         id="path5758"
+         style="fill:none;stroke:#008000;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         d="m 493.59698,481.93386 0,37.36427"
+         id="path5756"
+         style="fill:none;stroke:#008000;stroke-width:16;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         d="m 380.45989,519.31493 0,-38.62587"
+         id="path5754"
+         style="fill:none;stroke:#008000;stroke-width:16;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         d="m 302.67814,519.32524 0,-38.22827"
+         id="path5752"
+         style="fill:none;stroke:#008000;stroke-width:16;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         d="m 224.8964,519.30946 0,-37.37565"
+         id="path5750"
+         style="fill:none;stroke:#008000;stroke-width:16;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         d="m 145.09435,519.31472 0,-37.38091"
+         id="path5748"
+         style="fill:none;stroke:#008000;stroke-width:16;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         d="M 94.20791,518.80438 697.79698,516.279"
+         id="main_data_bus"
+         style="fill:none;stroke:#008000;stroke-width:16;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
     <flowRoot
        transform="matrix(-1,0,0,1,792.55167,0)"
        id="flowRoot3087"
@@ -41,148 +85,148 @@
            id="rect3091" /></flowRegion><flowPara
          id="flowPara3093" /></flowRoot>    <text
        x="639.76276"
-       y="451.84784"
+       y="450.33261"
        id="text4890"
        xml:space="preserve"
        style="font-size:17.78401947px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"><tspan
          x="639.76276"
-         y="451.84784"
+         y="450.33261"
          id="tspan4892"
          style="font-size:14.82001686px"><tspan
            x="639.76276"
-           y="451.84784"
+           y="450.33261"
            id="tspan4894"
            style="font-size:14.82001686px">MAR</tspan></tspan></text>
     <text
        x="573.66315"
-       y="451.46429"
+       y="449.94907"
        id="text4896"
        xml:space="preserve"
        style="font-size:17.78401947px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Segoe UI;-inkscape-font-specification:Segoe UI"><tspan
          x="573.66315"
-         y="451.46429"
+         y="449.94907"
          id="tspan4898"
          style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"><tspan
            x="573.66315"
-           y="451.46429"
+           y="449.94907"
            id="tspan4900"
            style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">PC</tspan></tspan></text>
     <text
-       x="489.71692"
-       y="451.26724"
+       x="498.17322"
+       y="450.82346"
        id="text4908"
        xml:space="preserve"
        style="font-size:17.78401947px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Segoe UI;-inkscape-font-specification:Segoe UI"><tspan
-         x="489.71692"
-         y="451.26724"
+         x="498.17322"
+         y="450.82346"
          id="tspan4910"
          style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"><tspan
-           x="489.71692"
-           y="451.26724"
+           x="498.17322"
+           y="450.82346"
            id="tspan4912"
            style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">MBR</tspan></tspan></text>
     <text
-       x="383.17392"
-       y="496.00098"
+       x="379.89093"
+       y="450.20004"
        id="text4932"
        xml:space="preserve"
        style="font-size:17.78401947px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Segoe UI;-inkscape-font-specification:Segoe UI"><tspan
-         x="383.17392"
-         y="496.00098"
+         x="379.89093"
+         y="450.20004"
          id="tspan4934"
          style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"><tspan
-           x="383.17392"
-           y="496.00098"
+           x="379.89093"
+           y="450.20004"
            id="tspan4936"
            style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">AC</tspan></tspan></text>
     <text
        x="301.61243"
-       y="497.86954"
+       y="450.64001"
        id="text4944"
        xml:space="preserve"
        style="font-size:17.78401947px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"><tspan
          x="301.61243"
-         y="497.86954"
+         y="450.64001"
          id="tspan4946"
          style="font-size:14.82001686px"><tspan
            x="301.61243"
-           y="497.86954"
+           y="450.64001"
            id="tspan4948"
            style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">IN</tspan></tspan></text>
     <text
-       x="223.4407"
-       y="497.97809"
+       x="220.91533"
+       y="450.74857"
        id="text4958"
        xml:space="preserve"
        style="font-size:17.78401947px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Segoe UI;-inkscape-font-specification:Segoe UI"><tspan
-         x="223.4407"
-         y="497.97809"
+         x="220.91533"
+         y="450.74857"
          id="tspan4960"
          style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"><tspan
-           x="223.4407"
-           y="497.97809"
+           x="220.91533"
+           y="450.74857"
            id="tspan4962"
            style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">OUT</tspan></tspan></text>
     <text
-       x="152.78239"
-       y="496.92819"
+       x="145.20625"
+       y="450.41296"
        id="text4970"
        xml:space="preserve"
        style="font-size:17.78401947px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"><tspan
-         x="152.78239"
-         y="496.92819"
+         x="145.20625"
+         y="450.41296"
          id="tspan4972"
          style="font-size:14.82001686px"><tspan
-           x="152.78239"
-           y="496.92819"
+           x="145.20625"
+           y="450.41296"
            id="tspan4974"
            style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">IR</tspan></tspan></text>
     <text
-       x="719.45032"
+       x="772.41302"
        y="633.02612"
        id="text4988"
        xml:space="preserve"
-       style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Segoe UI;-inkscape-font-specification:Segoe UI"><tspan
-         x="719.45032"
+       style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Segoe UI;-inkscape-font-specification:Segoe UI"><tspan
+         x="746.2392"
          y="633.02612"
          id="tspan4990"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"><tspan
-           x="719.45032"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Arial;-inkscape-font-specification:Arial"><tspan
+           x="746.2392"
            y="633.02612"
            dx="0 0 0 0 0"
            id="tspan4992"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">Main</tspan></tspan><tspan
-         x="719.45032"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Arial;-inkscape-font-specification:Arial">Main</tspan></tspan><tspan
+         x="746.2392"
          y="651.55109"
          id="tspan4996"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"><tspan
-           x="719.45032"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Arial;-inkscape-font-specification:Arial"><tspan
+           x="746.2392"
            y="651.55109"
            id="tspan4998"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">Memory</tspan></tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Arial;-inkscape-font-specification:Arial">Memory</tspan></tspan></text>
     <text
-       x="22.013969"
+       x="68.464012"
        y="626.02631"
        id="text4976"
        xml:space="preserve"
-       style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Segoe UI;-inkscape-font-specification:Segoe UI"><tspan
-         x="22.013969"
+       style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Segoe UI;-inkscape-font-specification:Segoe UI"><tspan
+         x="45.922825"
          y="626.02631"
          id="tspan4978"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"><tspan
-           x="22.013969"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Arial;-inkscape-font-specification:Arial"><tspan
+           x="45.922825"
            y="626.02631"
            dx="0 0 0 0 0 0 0 0"
            id="tspan4980"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">Control</tspan></tspan><tspan
-         x="22.013969"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Arial;-inkscape-font-specification:Arial">Control</tspan></tspan><tspan
+         x="45.922825"
          y="644.55139"
          id="tspan4984"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"><tspan
-           x="22.013969"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Arial;-inkscape-font-specification:Arial"><tspan
+           x="45.922825"
            y="644.55139"
            id="tspan4986"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">Unit</tspan></tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Arial;-inkscape-font-specification:Arial">Unit</tspan></tspan></text>
     <text
        x="98.045692"
        y="372.6618"
@@ -213,83 +257,34 @@
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">Write</tspan></tspan></text>
     <text
        x="453.37109"
-       y="527.11066"
+       y="417.35574"
        id="text4920"
        xml:space="preserve"
        style="font-size:17.78401947px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Segoe UI;-inkscape-font-specification:Segoe UI"><tspan
          x="453.37109"
-         y="527.11066"
+         y="417.35574"
          id="tspan4922"
          style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"><tspan
            x="453.37109"
-           y="527.11066"
+           y="417.35574"
            id="tspan4924"
            style="font-size:14.82001686px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial">ALU</tspan></tspan></text>
     <path
-       d="m 477.12962,461.07909 -46.82596,0"
+       d="m 477.12962,475.47376 -46.82596,0"
        id="mbr_to_ac_wire"
        style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     <path
        d="m 697.69278,467.02312 -17.20895,0"
        id="memory_to_mar_wire"
-       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+       style="opacity:0.5;fill:none;stroke:#008000;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     <path
-       d="m 478.14304,476.45766 -10.17739,0 0,14.85994"
+       d="m 478.14304,461.04399 -10.17739,0 0,-18.64801"
        id="mbr_to_alu_wire"
        style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     <path
-       d="m 430.04698,477.05377 8.86874,0 0,13.88095"
+       d="m 430.04698,460.44788 8.86874,0 0,-17.66902"
        id="ac_to_alu_wire"
        style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-    <g
-       transform="matrix(0,-0.74100083,-0.74100083,0,785.76043,744.92238)"
-       id="data_bus"
-       style="opacity:0">
-      <rect
-         width="17.142874"
-         height="819.64282"
-         ry="0.92487544"
-         x="527.85712"
-         y="117.71933"
-         id="rect4140"
-         style="color:#000000;fill:#338000;fill-opacity:1;stroke:none;stroke-width:0.36784315;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
-      <rect
-         width="17.142874"
-         height="157.21736"
-         ry="0.17740224"
-         x="184.90849"
-         y="-531.40955"
-         transform="matrix(0,1,-1,0,0,0)"
-         id="rect4140-0"
-         style="color:#000000;fill:#338000;fill-opacity:1;stroke:none;stroke-width:0.36784315;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
-      <rect
-         width="17.142874"
-         height="168.32903"
-         ry="0.18994053"
-         x="552.85657"
-         y="-541.76361"
-         transform="matrix(0,1,-1,0,0,0)"
-         id="rect4140-0-8"
-         style="color:#000000;fill:#338000;fill-opacity:1;stroke:none;stroke-width:0.36784315;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
-      <rect
-         width="17.142874"
-         height="154.18689"
-         ry="0.17398269"
-         x="855.9024"
-         y="-542.26868"
-         transform="matrix(0,1,-1,0,0,0)"
-         id="rect4140-0-8-72"
-         style="color:#000000;fill:#338000;fill-opacity:1;stroke:none;stroke-width:0.36784315;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
-      <rect
-         width="17.142874"
-         height="173.37979"
-         ry="0.19563974"
-         x="391.23221"
-         y="-542.77374"
-         transform="matrix(0,1,-1,0,0,0)"
-         id="rect4140-0-8-722"
-         style="color:#000000;fill:#338000;fill-opacity:1;stroke:none;stroke-width:0.36784315;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
-    </g>
     <g
        transform="matrix(0,-0.74100083,-0.74100083,0,785.76043,744.92238)"
        id="control_read_bus_3"
@@ -323,7 +318,7 @@
          id="path3989-4-4"
          style="fill:none;stroke:#000000;stroke-width:4.04857826;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
       <path
-         d="m 390.4632,345.20481 78.12754,0"
+         d="m 390.4632,330.55012 78.12754,0"
          id="path3989-4-61"
          style="fill:none;stroke:#000000;stroke-width:4.04857826;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     </g>
@@ -360,7 +355,7 @@
          id="path3991-7-9"
          style="fill:none;stroke:#000000;stroke-width:4.04857826;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
       <path
-         d="m 390.34642,358.57219 90.93326,0"
+         d="m 390.34642,343.9175 90.93326,0"
          id="path3991-7-0"
          style="fill:none;stroke:#000000;stroke-width:4.04857826;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     </g>
@@ -397,7 +392,7 @@
          id="path3993-4-5"
          style="fill:none;stroke:#000000;stroke-width:4.04857826;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
       <path
-         d="m 390.00075,371.9395 104.13809,0"
+         d="m 390.00075,357.28481 104.13809,0"
          id="path3993-4-61"
          style="fill:none;stroke:#000000;stroke-width:4.04857826;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     </g>
@@ -787,12 +782,12 @@
        style="fill:#ff0000;stroke:none" />
     <path
        d="m 131.60714,127.23586 a 3.4821429,3.4821429 0 1 1 -6.96428,0 3.4821429,3.4821429 0 1 1 6.96428,0 z"
-       transform="translate(392.12323,328.41623)"
+       transform="translate(402.98237,328.41623)"
        id="path4291-02"
        style="fill:#0000ff;stroke:none" />
     <path
        d="m 131.60714,127.23586 a 3.4821429,3.4821429 0 1 1 -6.96428,0 3.4821429,3.4821429 0 1 1 6.96428,0 z"
-       transform="translate(401.94467,328.41623)"
+       transform="translate(412.80381,328.41623)"
        id="path4291-37"
        style="fill:#0000ff;stroke:none" />
     <path
@@ -954,32 +949,24 @@
    style="font-size:6.32317114px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial" /></tspan></text>
     <text
        x="65.551521"
-       y="433.40698"
+       y="428.40698"
        id="text7728-06-4"
        xml:space="preserve"
        style="font-size:12.64634228px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"><tspan
          x="65.551521"
-         y="433.40698"
+         y="428.40698"
          id="tspan7730-1-52">A0</tspan></text>
     <text
        x="66.409843"
-       y="445.41595"
+       y="440.41595"
        id="text7728-06-5-4"
        xml:space="preserve"
        style="font-size:12.64634228px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"><tspan
          x="66.409843"
-         y="445.41595"
+         y="440.41595"
          id="tspan7730-1-4-7">A1</tspan></text>
-    <path
-       d="m 456.36926,498.16199 -0.39785,-69.24282 -361.12797,0.75078"
-       id="alu_wire_0"
-       style="fill:none;stroke:#000000;stroke-width:2.99999976;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-    <path
-       d="M 450.83421,499.21559 450.70914,437.6748 94.067877,438.4252"
-       id="alu_wire_1"
-       style="fill:none;stroke:#000000;stroke-width:2.99999976;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     <g
-       transform="matrix(0.25214154,0,0,0.26672304,477.11071,368.64331)"
+       transform="matrix(0.25214154,0,0,-0.26672304,477.11071,564.06012)"
        id="alu"
        style="fill:none;stroke:#000000;stroke-width:11.56828022;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none">
       <path
@@ -992,7 +979,7 @@
        height="35.102798"
        ry="0.96005929"
        x="85.694046"
-       y="419.05188"
+       y="412.62332"
        id="rect5238-9-8"
        style="fill:#00ff00;stroke:none" />
     <rect

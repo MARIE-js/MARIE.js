@@ -5,7 +5,7 @@
                 MARIE.js <span class="version">v<%= version %></span>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="index.html"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                <li><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
                 <% if(title == "Home") { %>
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown">File
@@ -29,7 +29,7 @@
                     <a class="dropdown-toggle" data-toggle="dropdown">View
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#datapath" id="dpath-menu">Datapath <i id="datapath-tick" class="glyphicon glyphicon-ok pull-right overlay-view"></i></a></li>
+                        <li><a id="dpath-menu">Datapath <i id="datapath-tick" class="glyphicon glyphicon-ok pull-right"></i></a></li>
                     </ul>
                 </li>
                 <% } %>

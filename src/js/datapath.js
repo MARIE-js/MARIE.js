@@ -10,9 +10,6 @@ var DataPath;
         this.populateInstructions();
         this.populateMicroInstructions();
 
-        this.readRegisterNo = null;
-        this.writeRegisterNo = null;
-
         this.isMemoryRead = false;
         this.isMemoryWrite = false;
 
@@ -43,17 +40,33 @@ var DataPath;
         this.displayInstruction.appendChild(this.microInstructionsElement);
     };
 
-    DataPath.prototype.setDataBus = function(dpDocument, isOn) {
-        var data_bus = dpDocument.getElementById("data_bus");
+    DataPath.prototype.restart = function() {
+        this.setDataBus(false, false);
+        this.setALUBus(null);
+        this.setControlBus(null, "read");
+        this.setControlBus(null, "write");
+        this.setTimeSequence(true);
+    };
+
+    DataPath.prototype.setDataBus = function(isOn, isMemoryInvolved) {
+        var data_bus = this.datapath.contentDocument.getElementById("data_bus");
 
         for(var i = 0; i < data_bus.childNodes.length; i++) {
-            if(data_bus.childNodes[i].tagName == "rect") {
+            if(data_bus.childNodes[i].tagName == "path") {
                 if(isOn) {
-                    data_bus.childNodes[i].style.fillOpacity = "1";
+                    data_bus.childNodes[i].style.stroke = "lime";
                 } else {
-                    data_bus.childNodes[i].style.fillOpacity = "0.5";
+                    data_bus.childNodes[i].style.stroke = "green";
                 }
             }
+        }
+
+        var memToMARWire = this.datapath.contentDocument.getElementById("memory_to_mar_wire");
+
+        if(isMemoryInvolved) {
+            memToMARWire.style.stroke = "lime";
+        } else if(isMemoryInvolved === false) {
+            memToMARWire.style.stroke = "green";
         }
     };
 
@@ -101,9 +114,14 @@ var DataPath;
             this.isMemoryWrite = false;
             memoryWriteWire.style.stroke = "black";
             mainMemory.style.stroke = "black";
+        } else if(type === "clear") {
+            this.isMemoryRead = false;
+            this.isMemoryWrite = false;
+            memoryReadWire.style.stroke = "black";
+            mainMemory.style.stroke = "black";
         }
 
-        if(register === null) {
+        if(register === "memory") {
             if(type === "read") {
                 mainMemory.style.stroke = "blue";
                 memoryReadWire.style.stroke = "blue";
@@ -133,6 +151,24 @@ var DataPath;
         }
     };
 
+    DataPath.prototype.setALUBus = function(type) {
+        var alu0 = this.datapath.contentDocument.getElementById("alu_wire_0");
+        var alu1 = this.datapath.contentDocument.getElementById("alu_wire_1");
+        if(type === "add") {
+            alu0.style.stroke = "lime";
+            alu1.style.stroke = "black";
+        } else if(type === "subtract") {
+            alu0.style.stroke = "black";
+            alu1.style.stroke = "lime";
+        } else if(type === "clear") {
+            alu0.style.stroke = "lime";
+            alu1.style.stroke = "lime";
+        } else { // if type === "set" or anything else
+            alu0.style.stroke = "black";
+            alu1.style.stroke = "black";
+        }
+    };
+
     DataPath.prototype.setAllDatapathRegisters = function(registers) {
         var self = this;
         this.registers.map(function(ele, index) {
@@ -147,6 +183,8 @@ var DataPath;
 
     DataPath.prototype.attachSimulator = function(sim) {
             this.simulator = sim;
+            this.displayInstruction.style.visibility = "visible";
+            this.restart();
 
             this.showInstruction();
     };
@@ -184,8 +222,9 @@ var DataPath;
         }
 
         /*
+        // populate micro-instructions
         this.simulator.debug = true;
-        this.simulator.step();
+        this.simulator.run();
         this.simulator.debug = false;
         */
     };
@@ -196,15 +235,27 @@ var DataPath;
         var td = document.createElement("td");
         td.textContent = microInstruction;
         tr.appendChild(td);
-        this.setTimeSequence();
-        this.timeSeqCounter++;
+
+        this.highlightMicroInstruction(microInstruction);
     };
 
-    DataPath.prototype.setTimeSequence = function() {
+    DataPath.prototype.highlightMicroInstruction = function(microInstruction) {
+        var nodes = this.microInstructionsElement.getElementsByTagName("td");
+
+        nodes[this.timeSeqCounter].style.background = "lime";
+        if(this.timeSeqCounter) {
+            nodes[this.timeSeqCounter - 1].style.background = "transparent";
+        }
+
+        this.setTimeSequence();
+        this.timeSeqCounter++;
+    }
+
+    DataPath.prototype.setTimeSequence = function(clear) {
         for(var i = 0; i < 8; i++) {
             var ele = this.datapath.contentDocument.getElementById("timing_signal_" + i.toString());
 
-            if(i === this.timeSeqCounter) {
+            if(!clear && i === this.timeSeqCounter) {
                 ele.style.fill = "orange";
             } else {
                 ele.style.fill = "black";

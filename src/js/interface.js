@@ -28,6 +28,7 @@ window.addEventListener("load", function() {
         datapathInstructionElement = document.getElementById("datapath-display-instructions");
 
     const HEX = 0, DEC = 1, ASCII = 2;
+    var minDatapathDelay = parseInt(localStorage.getItem("min-datapath-delay")) || 1000;
 
     var asm = null,
         sim = null,
@@ -340,7 +341,7 @@ window.addEventListener("load", function() {
     }
 
     function regLogFunc(message) {
-        if(!running || delay >= 1000) {
+        if(!running || delay >= minDatapathDelay) {
             datapath.appendMicroInstruction(message);
         }
 
@@ -508,8 +509,19 @@ window.addEventListener("load", function() {
         statusInfo.className = "";
 
         sim.setEventListener("regread", function(e) {
-            if(!running || delay >= 1000) {
+            if(!running || delay >= minDatapathDelay) {
                 datapath.setControlBus(e.register, "read");
+                datapath.setALUBus(e.type);
+
+                datapath.setDataBus(true);
+
+                if(datapath.timeoutToTurnDataBusOff) {
+                    clearTimeout(datapath.timeoutToTurnDataBusOff);
+                }
+
+                datapath.timeoutToTurnDataBusOff = setTimeout(function() {
+                    datapath.setDataBus(false, false);
+                }, delay/2);
             }
         });
 
@@ -522,9 +534,19 @@ window.addEventListener("load", function() {
                 value: e.oldValue
             });
 
-            if(!running || delay >= 1000) {
+            if(!running || delay >= minDatapathDelay) {
                 datapath.setDatapathRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
                 datapath.setControlBus(e.register, "write");
+
+                datapath.setDataBus(true);
+
+                if(datapath.timeoutToTurnDataBusOff) {
+                    clearTimeout(datapath.timeoutToTurnDataBusOff);
+                }
+
+                datapath.timeoutToTurnDataBusOff = setTimeout(function() {
+                    datapath.setDataBus(false, false);
+                }, delay/2);
             }
 
             if (e.register == "pc") {
@@ -545,14 +567,34 @@ window.addEventListener("load", function() {
         resetRegisters();
 
         sim.setEventListener("memread", function() {
-            if(!running || delay >= 1000) {
-                datapath.setControlBus(null, "read");
+            if(!running || delay >= minDatapathDelay) {
+                datapath.setControlBus("memory", "read");
+
+                datapath.setDataBus(true, true);
+
+                if(datapath.timeoutToTurnDataBusOff) {
+                    clearTimeout(datapath.timeoutToTurnDataBusOff);
+                }
+
+                datapath.timeoutToTurnDataBusOff = setTimeout(function() {
+                    datapath.setDataBus(false, false);
+                }, delay/2);
             }
         });
 
         sim.setEventListener("memwrite", function(e) {
-            if(!running || delay >= 1000) {
-                datapath.setControlBus(null, "write");
+            if(!running || delay >= minDatapathDelay) {
+                datapath.setControlBus("memory", "write");
+
+                datapath.setDataBus(true, true);
+
+                if(datapath.timeoutToTurnDataBusOff) {
+                    clearTimeout(datapath.timeoutToTurnDataBusOff);
+                }
+
+                datapath.timeoutToTurnDataBusOff = setTimeout(function() {
+                    datapath.setDataBus(false, false);
+                }, delay/2);
             }
 
             stateHistory.push({
@@ -573,7 +615,7 @@ window.addEventListener("load", function() {
         });
 
         sim.setEventListener("newinstruction", function() {
-            if(!running || delay >= 1000) {
+            if(!running || delay >= minDatapathDelay) {
                 datapath.showInstruction();
             }
         });
@@ -683,7 +725,7 @@ window.addEventListener("load", function() {
             runButton.textContent = "Pause";
             running = true;
 
-            if(delay < 1000) {
+            if(delay < minDatapathDelay) {
                 $("#datapath-too-fast-warning").css('visibility', 'visible');
                 $("#datapath-display-instructions").css({"opacity": 0.5});
                 $("#datapath-diagram").css({"opacity": 0.5});
@@ -698,7 +740,7 @@ window.addEventListener("load", function() {
     rangeDelay.addEventListener("change", function() {
         delay = parseInt(this.value);
 
-        if(!running || delay >= 1000) {
+        if(!running || delay >= minDatapathDelay) {
             $("#datapath-too-fast-warning").css('visibility', 'hidden');
             $("#datapath-display-instructions").css({"opacity": 1});
             $("#datapath-diagram").css({"opacity": 1});
@@ -781,12 +823,14 @@ window.addEventListener("load", function() {
     $("#cnclnewfile").click( function(){
         $('#newfoldermodal').modal('hide');
     });
+
     $("#savefile").click( function() {
         var text = programCodeMirror.getValue();
         var filename = "code";
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
         saveAs(blob, filename+".mas");
     });
+
     $("#fileInput").change(function() {
         var file = fileInput.files[0];
         var reader = new FileReader();
@@ -796,4 +840,30 @@ window.addEventListener("load", function() {
         };
         reader.readAsText(file);
     });
+
+    $("#dpath-menu").click(function() {
+        if(window.location.hash === "#datapath") {
+            window.location.hash = "";
+        } else {
+            window.location.hash = "#datapath";
+        }
+    });
+
+    $("#close-datapath").click(function() {
+        window.location.hash = "";
+    });
+
+    $(window).on('hashchange', function() {
+        if(window.location.hash === "#datapath") {
+            $("#datapath-tick").show();
+        } else {
+            $("#datapath-tick").hide();
+        }
+    });
+
+    if(window.location.hash === "#datapath") {
+        $("#datapath-tick").show();
+    } else {
+        $("#datapath-tick").hide();
+    }
 });
