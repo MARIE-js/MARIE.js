@@ -69,7 +69,7 @@ $(document).ready( function(){
             smartPlacement: true,
             element: "#run",
             title: "Run",
-            content: "Run the code, what else?"
+            content: "Run the code, what else? This button can also pause the current execution during code execution"
         },
         {
             smartPlacement: true,
@@ -87,7 +87,14 @@ $(document).ready( function(){
             smartPlacement: true,
             element: "#output-select",
             title: "Select Output Type",
-            content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. "
+            content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. ",
+        },
+        {
+            autoscroll: false
+            onshow: function (tour) {this.location.hash = '#datapath'},smartPlacement: true,
+            element: "#datapath-diagram",
+            title: "Datapath Diagram",
+            content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. "       
         }
         ]});
     // Initialize the tour
