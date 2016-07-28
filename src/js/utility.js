@@ -5,24 +5,6 @@ var Utility = {};
 
 
     /**
-     * Converts line number into memory address.
-     * @memberof Utility
-     *
-     * @param {Number} line - The line number.
-     * @return {String} The corresponding memory address.
-     */
-    Utility.lineToMemoryAddress = function(line) {
-        line --;
-        var n = 3;
-
-        var str = line.toString(16).toUpperCase();
-        // http://stackoverflow.com/a/10073788/824294
-        // pads leading zeros if str is shorter than 3 characters.
-        return str.length >= n ? str : new Array(n - str.length + 1).join("0") + str;
-    };
-
-
-    /**
      * Converts an unsigned integer into an array of
      * binary numbers.
      * @memberof Utility
@@ -99,12 +81,21 @@ var Utility = {};
      * @memberof Utility
      *
      * @param  {Number} num    - The value to be converted.
-     * @param  {Number} digits - (optional) how many hexadecimal digits
+     * @param  {Number} digits - (optional) how many hexadecimal digits there
+     * are (used for padding and truncating)
      * @return {String} The hexadecimal representation.
      */
     Utility.hex = function(num, digits) {
         digits = digits || 4;
-        var s = "0000" + (num >>> 0).toString(16).toUpperCase();
-        return s.substr(s.length - digits);
+        var s = (num >>> 0).toString(16).toUpperCase();
+        var padleft = digits - s.length;
+        if(padleft < 0) {
+            padleft = 0;
+            s = s.substr(s.length - digits, digits);
+        }
+
+        s = new Array(padleft + 1).join("0") + s;
+
+        return s;
     };
 }());

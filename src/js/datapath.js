@@ -403,7 +403,6 @@ var DataPath;
         for(var op in this.simulator.operators) {
             if(this.simulator.operators[op].opcode === parseInt(instruction[0], 16)) {
                 return {
-                    line: pc + 1,
                     operator: op,
                     operand: nonOperandOperators.indexOf(op.toLowerCase()) < 0 ? instruction.slice(1, 4) : undefined
                 };
@@ -455,13 +454,13 @@ var DataPath;
         }
         */
 
-        var instructionsContents = instructions.map(function(instruction) {
+        var instructionsContents = instructions.map(function(instruction, index) {
             if(typeof instruction === "undefined") {
                 return undefined;
             }
 
             return [
-                Utility.lineToMemoryAddress(instruction.line) + ":",
+                Utility.hex(pc + index - 1, 3) + ":",
                 typeof instruction.label !== "undefined" ? instruction.label + "," : undefined,
                 instruction.operator.toUpperCase(),
                 instruction.operand

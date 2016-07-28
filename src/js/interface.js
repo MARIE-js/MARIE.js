@@ -254,9 +254,9 @@ window.addEventListener("load", function() {
                 sim.program[cell] = undefined;
             }
 
-            setStatus("Modified memory cell at address " + Utility.lineToMemoryAddress(cell + 1) + " from " +  Utility.hex(oldValue) + " to " + Utility.hex(parsedValue));
+            setStatus("Modified memory cell at address " + Utility.hex(cell, 3) + " from " +  Utility.hex(oldValue) + " to " + Utility.hex(parsedValue));
         } else {
-            setStatus("Invalid value '" + value + "'; reverting back to original memory cell contents at address " + Utility.lineToMemoryAddress(cell + 1), true);
+            setStatus("Invalid value '" + value + "'; reverting back to original memory cell contents at address " + Utility.hex(cell, 3), true);
             ele.textContent = Utility.hex(sim.memory[cell].contents);
         }
 
