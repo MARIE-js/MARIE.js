@@ -2,8 +2,9 @@
   "name": "MARIE.js",
   "version": "0.9.5",
   "description": "MARIE.js is an implementation of a simulator for a 'Machine Architecture that is Really Intuitive and Easy' from The Essentials of Computer Organization and Architecture (Linda Null, Julia Lobur) in JavaScript.",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
+    "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "homepage": "https://marie-js.github.io/MARIE.js",
@@ -37,5 +38,8 @@
     "load-grunt-tasks": "^3.5.0",
     "grunt-contrib-connect": "~1.0.2",
     "grunt-jsdoc": "~2.1.0"
+  },
+  "dependencies": {
+    "electron": "^1.3.5"
   }
 }

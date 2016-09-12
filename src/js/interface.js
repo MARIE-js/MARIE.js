@@ -674,7 +674,7 @@ window.addEventListener("load", function() {
     }
 
     function outputFunc(value) {
-        var shouldScrollToBottomOutputLog = outputLogOuter.getAttribute("data-stick-to-bottom") == "true";
+        var shouldScrollToBottomOutputLog = outputLog.getAttribute("data-stick-to-bottom") == "true";
 
         outputList.push(value);
 
@@ -682,7 +682,7 @@ window.addEventListener("load", function() {
         outputLog.appendChild(document.createElement("br"));
 
         if(shouldScrollToBottomOutputLog) {
-            outputLog.scrollTop = outputLogOuter.scrollHeight;
+            outputLog.scrollTop = outputLog.scrollHeight;
         }
     }
 
