@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         <title>MARIE.js | <%= title %></title>
+
         <% if (release) { %>
         <script src="js/marie.min.js" type="text/javascript"></script>
         <% } else { %>
@@ -22,6 +23,7 @@
         <script src="js/ext/jump-to-line.js" type="text/javascript"></script>
         <script src="js/ext/gapi.js" type="text/javascript"></script>
 
+        <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
         <script src="js/syntax.js" type="text/javascript"></script>
         <script src="js/autocomplete.js" type="text/javascript"></script>
         <script src="js/utility.js" type="text/javascript"></script>
@@ -31,7 +33,6 @@
         <script src="js/tour.js" type="text/javascript"></script>
         <script src="js/theme.js" type="text/javascript"></script>
         <% } %>
-        <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
 
         <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
         <link href="css/bootstrap-tour.css" rel="stylesheet" type="text/css">
