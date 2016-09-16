@@ -2,7 +2,7 @@
       // Developer Console, https://console.developers.google.com
       var CLIENT_ID = '357044840397-qs7nu7a17ohiih95v334l6k209qh5oah.apps.googleusercontent.com';
 
-      var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
+      var SCOPES = ['https://www.googleapis.com/auth/drive','https://www.googleapis.com/auth/plus.login'];
 
       /**
        * Check if current user has authorized this application.
@@ -25,12 +25,12 @@
         var authorizeDiv = document.getElementById('authorize-div');
         if (authResult && !authResult.error) {
           // Hide auth UI, then load client library.
-          authorizeDiv.style.display = 'none';
+          authorizeDiv.attr('hidden',false);
           loadDriveApi();
         } else {
           // Show auth UI, allowing the user to initiate authorization by
           // clicking authorize button.
-          authorizeDiv.style.display = 'inline';
+          authorizeDiv.attr('hidden',true);
         }
       }
 
@@ -94,6 +94,15 @@
         return false;
       }
 
+      function getInfo(url){
+        checkAuth();
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET",url,false);
+        xhr.send(null);
+        return xhr.responseText;
+      }
+
       $(document).load(function(){
         gapiAuthenticate();
+        console.log(getInfo('https://www.googleapis.com/drive/v3/about'))
       })
