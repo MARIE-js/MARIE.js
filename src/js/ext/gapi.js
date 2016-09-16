@@ -86,14 +86,3 @@
         var textContent = document.createTextNode(message + '\n');
         console.log(textContent);
       }
-
-      function gapiAuthenticate(){
-        gapi.auth2.init(
-          {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
-          handleAuthResult);
-        return false;
-      }
-
-      $(document).load(function(){
-        gapiAuthenticate();
-      })
