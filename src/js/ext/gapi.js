@@ -102,7 +102,7 @@
         return xhr.responseText;
       }
 
-      $(document).load(function(){
+      $(document).ready(function(){
         gapiAuthenticate();
         console.log(getInfo('https://www.googleapis.com/drive/v3/about'))
-      })
+      });
