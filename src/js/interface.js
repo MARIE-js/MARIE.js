@@ -1539,8 +1539,6 @@ window.addEventListener("load", function() {
         $('#tosModal').modal('hide');
     });
 
-
-
 });
 
 $(document).ready(function(){
