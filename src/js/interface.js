@@ -1553,5 +1553,5 @@ $(document).ready(function(){
 
     $('#version').click(function(){
       $('#aboutV').modal('toggle');
-    })
+    });
 });
