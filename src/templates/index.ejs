@@ -37,7 +37,6 @@
                               <li class="active"><a data-toggle="tab" href="#output-log-outer">Output log</a></li>
                               <li><a data-toggle="tab" href="#register-log-outer">RTL log</a></li>
                               <li><a data-toggle="tab" href="#watch-list-outer">Watch list</a></li>
-                              <li><a data-toggle="tab" href="#input-list-outer">Input list</a></li>
                           </ul>
                           <div class="tab-content">
                               <div id="output-log-outer" class="tab-pane in active">
@@ -65,19 +64,6 @@
                                       </tr>
                                   </table>
                                   <table id="watch-list"></table>
-                              </div>
-                              <div id="input-list-outer" class="tab-pane">
-                                  <div id="input-list-type">
-                                      <b>INPUT MODE: </b>
-                                      <select id="input-list-select" class="output-type">
-                                          <option>HEX</option>
-                                          <option>DEC</option>
-                                          <option>UNICODE</option>
-                                          <option>BIN</option>
-                                      </select>
-                                  </div>
-                                  <hr>
-                                  <textarea id="input-list"></textarea>
                               </div>
                           </div>
                       </div>
@@ -155,7 +141,20 @@
                 <button id="input-button" type="button" class="btn btn-primary">Accept</button>
             </div>
         </div>
-
+        <!-- newFile Modal -->
+        <div class="modal fade " id="aboutV" role="dialog" data-keyboard="true" tabindex="-1">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">MARIE.js | <span class="fa fa-file-o"></span> Current Version</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>This version of MARIE.js is: v<%= version %>-preview</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- newFile Modal -->
         <div class="modal fade " id="newfoldermodal" role="dialog" data-keyboard="true" tabindex="-1">
             <div class="modal-dialog">
