@@ -260,5 +260,21 @@ button[disabled=disabled], button:disabled {
 }
 
 .sr-only {
-  color: white'
+  color: white;
+}
+
+.navbar-toggle{
+  position: relative;
+  float: right;
+  margin-right: 15px;
+  padding: 9px 10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  background-image: none;
+  border: 1px solid white;
+  border-radius: 4px;
+}
+
+.navbar-toggle .icon-bar{
+  background-color: white;
 }
