@@ -667,6 +667,10 @@ window.addEventListener("load", function() {
 
         $('#input-error').hide();
 
+        if (getInputFromInputList(output)) {
+            return;
+        }
+
         $('#input-dialog').popoverX('show');
 
         $('#input-dialog').off('hidden.bs.modal');
@@ -694,6 +698,58 @@ window.addEventListener("load", function() {
             pausedOnInput = true;
             savedOutput = output;
         });
+    }
+
+    function getInputFromInputList(output) {
+        var inputList = $('#input-list').val().trim();
+
+        // get the first line
+        var value = inputList.split('\n')[0];
+
+        // if the first line is empty, return to user prompted input
+        if (value === "") {
+            return false;
+        }
+        
+        // delete the used input line
+        $('#input-list').val(inputList.split('\n').slice(1).join('\n'));
+
+        // timeout because you get an error from the generator
+        // TypeError: Generator is already running
+        window.setTimeout(function() {
+            // get the type
+            var type = $('#input-list-select').val();
+            switch (type) {
+                case ("HEX"):
+                    value = parseInt(value, 16);
+                    break;
+                case ("DEC"):
+                    value = parseInt(value, 10);
+                    break;
+                case ("UNICODE"):
+                    value = value.charCodeAt(0);
+                    break;
+                case("BIN"):
+                    value = parseInt(value, 2);
+                    break;
+            }
+
+            // if it's a numeric value, use it as input
+            if (!isNaN(value)) {
+                output(value);
+                runLoop(microStepping);
+                stopWaiting();
+            }
+            // show error if not
+            else {
+                $('#input-error').show({
+                    step: function() {
+                        $('#input-dialog').popoverX("show");
+                    }
+                });
+            }
+        }, 0);
+        return true;
     }
 
     function outputFunc(value) {

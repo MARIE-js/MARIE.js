@@ -303,7 +303,7 @@ footer {
     background-color: #F9F9F9;
 }
 
-#output-log-outer, #register-log-outer, #watch-list-outer {
+#output-log-outer, #register-log-outer, #watch-list-outer, #input-list-outer {
     flex: 1 0 0;
     padding: 0 0.5em;
     box-sizing: border-box;
@@ -316,6 +316,24 @@ footer {
     padding: 0.5em 1em;
     text-align: right;
 	font-family: sans-serif;
+}
+
+#input-list-type {
+    padding: 0.5em;
+}
+
+#input-list-outer {
+    padding: 0;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+#input-list-outer.active {
+    display: flex;
+}
+
+#input-list {
+    flex: 1 0 0;
 }
 
 .finished-instruction {
