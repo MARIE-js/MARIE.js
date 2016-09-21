@@ -71,18 +71,21 @@
           <a class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-question-circle-o"></span> Help
           <span class="caret"></span></a>
           <ul class="dropdown-menu">
+              <li><a href="about.html"><span class="fa fa-info-circle"></span> About </a></li>
+              <li><a id="version"><span class="fa fa-hashtag"></span> Current Version </a></li>
+              <li><a href="https://github.com/MARIE-js/MARIE.js/releases" target="_blank"><span class="fa fa-github-alt"></span> Releases</a></li>
+              <% if(title == "Home") { %>
+              <li><a id="starttour"><span class="fa fa-ship"></span> Rerun Tour</a></li>
+              <% } %>
+              <li class="divider"></li>
               <li><a href="https://github.com/MARIE-js/MARIE.js/wiki/Frequently-Asked-Questions-(FAQs)" target="_blank"><span class="fa fa-question"></span> FAQs </a></li>
               <li><a href="https://github.com/MARIE-js/MARIE.js/wiki" target="_blank"><span class="fa fa-book"></span> Wiki </a></li>
               <li><a href="book.pdf" target="_blank"><span class="fa fa-book"></span> Download eBook (PDF) </a></li>
               <li><a href="https://github.com/MARIE-js/MARIE.js/wiki/MARIE-Instruction-Set-(with-Opcodes)" target="_blank"><span class="fa fa-info"></span> Instruction Set </a></li>
-              <li><a href="about.html"><span class="fa fa-info-circle"></span> About </a></li>
-              <li><a href="https://github.com/MARIE-js/MARIE.js/releases" target="_blank"><span class="fa fa-github-alt"></span> Releases</a></li>
-              <li><a href="https://goo.gl/CWAaES" target="_blank"><span class="fa fa-paperclip"></span> Submit Feedback</a></li>
               <li class="divider"></li>
+              <li><a href="https://goo.gl/CWAaES" target="_blank"><span class="fa fa-paperclip"></span> Submit Feedback</a></li>
               <li><a href="https://gitreports.com/issue/MARIE-js/MARIE.js/" target="_blank"><span class="fa fa-bug"></span> Report an Issue</a></li>
-              <% if(title == "Home") { %>
-              <li><a id="starttour"><span class="fa fa-ship"></span> Rerun Tour</a></li>
-              <% } %>
+
           </ul>
       </li>
       </ul>
