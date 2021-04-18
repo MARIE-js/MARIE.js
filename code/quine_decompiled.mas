@@ -1,0 +1,439 @@
+/ This is the "decompiled" version of the quine.
+/ by Jia Ming, allowed for use by the MARIE.JS Team
+/ Copyright (C) 2021. Licensed under the MIT License
+/
+/ Note: Change output mode to unicode. The actual self-
+/ printing program is at https://marie.js.org/?quine
+
+
+Load header_start
+Store 2FF / header_pointer
+
+/ print out header text data
+headerloop, LoadI 2FF / header_pointer
+            Output
+            Load 2FF / header_pointer
+            Add one
+            Store 2FF / header_pointer
+            Subt prog_length
+            Skipcond 400
+            Jump headerloop
+
+/ make a copy of the compiled program in memory. uses
+/ address 300 and 301 for storing `offsetpoint` and
+/ `copypointer` to avoid copying wrong values
+cploop, Add prog_length
+        Store 301 / offsetpoint
+
+        Subt prog_end
+        Skipcond 000
+        Jump loop
+
+        LoadI 300 / copypointer
+        StoreI 301 / offsetpoint
+
+        Load 300 / copypointer
+        Add one
+        Store 300 / copypointer
+
+        Jump cploop
+
+/ output the actual program line by line each interation
+loop, Load char_H / output 'H'
+      Output
+      Load char_e / output 'e'
+      Output
+      Load char_x / output 'x'
+      Output
+      Load char_space / output ' '
+      Output
+
+      LoadI pointer
+      Store 305 / d_ans_r
+
+      Load pointer
+      Subt prog_length
+      Subt header_start / check if reached
+      Skipcond 000      / header text data
+      Jump last2
+
+      Load fourzeroninesix
+      JnS nxthex / output first hexdigit
+      Load twofivesix
+      JnS nxthex / output second hexdigit
+      Jump last2
+
+last2,Load sixteen
+      JnS nxthex / output third hexdigit
+      Load one
+      Jns nxthex / output fourth hexdigit
+
+      Load ten / 10 = '\n'
+      Output
+
+      Load pointer
+      Add one
+      Store pointer
+
+      Subt prog_end
+      Skipcond 000
+      Halt
+      Jump loop
+
+
+
+/ subroutine for printing out each hexdigit
+nxthex, Hex 0000
+        Store 303 / y
+        Load 305 / d_ans_r
+        Store 302 / x
+        JnS divide
+        Load 304 / d_ans_q
+
+        Subt ten / the idea here is that i do character math
+        Skipcond 000 / to output the hexadecimal digits
+        Add seven / rather than jump around like a maniac
+        Add char_colon / num value of ':' = 0x3A
+
+        Output
+        JumpI nxthex
+
+
+
+/ evaluate quotient and remainder of `x divided by `y`
+/ into `d_ans_q` and `d_ans_r`. returns special values
+/ for negative x (sorry for the mess). uses addresses
+/ 302 through 305 for storing its respective variables
+divide, Hex 0000
+        Clear
+        Store 304 / reset d_ans_q
+        Store 305 / reset d_ans_r
+        Load 302 / x
+
+        Skipcond 000
+        Jump dloop
+        Load sixteen
+        Subt one / Load 15 here when 302 is negative
+        Store 304 / d_ans_q
+
+dloop,  Load 302 / dcount
+        Skipcond 000
+        Jump dpos
+
+dneg,   Add 303 / y
+        Store 302 / dcount
+        Skipcond 000 / hacky fix for off-by-one error
+        Jump dterm   / need to have a closer look
+        Load 304 / d_ans_q
+        Subt one
+        Jump jdloop / do the dloop
+dterm,  Load 302 / dcount
+        Jump setrem
+
+dpos,   Subt 303 / y
+        Store 302 / x
+        Skipcond 000
+        Jump dcont / do the dloop
+        Add 303 / y
+setrem, Store 305 / d_ans_r
+        JumpI divide / FINISH subroutine
+dcont,  Load 304 / d_ans_q
+        Add one
+
+jdloop, Store 304 / d_ans_q
+        Jump dloop
+
+
+
+/ variable for pointing to header text data
+header_start, ADR header
+
+/ a variable and two constants for program navigation
+pointer, Hex 170 / hardcoded to be start of program data
+prog_length, Hex 170 / hardcoded to be length of this quine
+prog_end, Hex 2E0 / hardcoded, to be double of pointer
+
+/ constants
+seven, Dec 7
+ten, Dec 10
+
+one, Dec 1
+sixteen, Dec 16
+twofivesix, Dec 256
+fourzeroninesix, Dec 4096
+
+/ character constants
+char_H, Hex 48 / 'H'
+char_e, Hex 65 / 'e'
+char_x, Hex 78 / 'x'
+
+/ taken advantage of in the text data below so
+/ that final program takes up exactly 0x170 cells
+/ char_space, Hex 20 / ' '
+/ char_colon, Hex 3A / ':'
+
+
+/ data for the quine's header text lies below
+
+/ This is a quine, i.e., a self-printing program
+/ by Jia Ming, allowed for use by the MARIE.JS Team
+/ Copyright (C) 2021. Licensed under the MIT License
+/
+/ Note: Change output mode to unicode. For spoilers,
+/ go to https://marie.js.org/?quine_decompiled
+header, Hex 2F
+char_space, Hex 20
+Hex 54
+Hex 68
+Hex 69
+Hex 73
+Hex 20
+Hex 69
+Hex 73
+Hex 20
+Hex 61
+Hex 20
+Hex 71
+Hex 75
+Hex 69
+Hex 6E
+Hex 65
+Hex 2C
+Hex 20
+Hex 69
+Hex 2E
+Hex 65
+Hex 2E
+Hex 2C
+Hex 20
+Hex 61
+Hex 20
+Hex 73
+Hex 65
+Hex 6C
+Hex 66
+Hex 2D
+Hex 70
+Hex 72
+Hex 69
+Hex 6E
+Hex 74
+Hex 69
+Hex 6E
+Hex 67
+Hex 20
+Hex 70
+Hex 72
+Hex 6F
+Hex 67
+Hex 72
+Hex 61
+Hex 6D
+Hex 0A
+Hex 2F
+Hex 20
+Hex 62
+Hex 79
+Hex 20
+Hex 4A
+Hex 69
+Hex 61
+Hex 20
+Hex 4D
+Hex 69
+Hex 6E
+Hex 67
+Hex 2C
+Hex 20
+Hex 61
+Hex 6C
+Hex 6C
+Hex 6F
+Hex 77
+Hex 65
+Hex 64
+Hex 20
+Hex 66
+Hex 6F
+Hex 72
+Hex 20
+Hex 75
+Hex 73
+Hex 65
+Hex 20
+Hex 62
+Hex 79
+Hex 20
+Hex 74
+Hex 68
+Hex 65
+Hex 20
+Hex 4D
+Hex 41
+Hex 52
+Hex 49
+Hex 45
+Hex 2E
+Hex 4A
+Hex 53
+Hex 20
+Hex 54
+Hex 65
+Hex 61
+Hex 6D
+Hex 0A
+Hex 2F
+Hex 20
+Hex 43
+Hex 6F
+Hex 70
+Hex 79
+Hex 72
+Hex 69
+Hex 67
+Hex 68
+Hex 74
+Hex 20
+Hex 28
+Hex 43
+Hex 29
+Hex 20
+Hex 32
+Hex 30
+Hex 32
+Hex 31
+Hex 2E
+Hex 20
+Hex 4C
+Hex 69
+Hex 63
+Hex 65
+Hex 6E
+Hex 73
+Hex 65
+Hex 64
+Hex 20
+Hex 75
+Hex 6E
+Hex 64
+Hex 65
+Hex 72
+Hex 20
+Hex 74
+Hex 68
+Hex 65
+Hex 20
+Hex 4D
+Hex 49
+Hex 54
+Hex 20
+Hex 4C
+Hex 69
+Hex 63
+Hex 65
+Hex 6E
+Hex 73
+Hex 65
+Hex 0A
+Hex 2F
+Hex 0A
+Hex 2F
+Hex 20
+Hex 4E
+Hex 6F
+Hex 74
+Hex 65
+char_colon, Hex 3A
+Hex 20
+Hex 43
+Hex 68
+Hex 61
+Hex 6E
+Hex 67
+Hex 65
+Hex 20
+Hex 6F
+Hex 75
+Hex 74
+Hex 70
+Hex 75
+Hex 74
+Hex 20
+Hex 6D
+Hex 6F
+Hex 64
+Hex 65
+Hex 20
+Hex 74
+Hex 6F
+Hex 20
+Hex 75
+Hex 6E
+Hex 69
+Hex 63
+Hex 6F
+Hex 64
+Hex 65
+Hex 2E
+Hex 20
+Hex 46
+Hex 6F
+Hex 72
+Hex 20
+Hex 73
+Hex 70
+Hex 6F
+Hex 69
+Hex 6C
+Hex 65
+Hex 72
+Hex 73
+Hex 2C
+Hex 0A
+Hex 2F
+Hex 20
+Hex 67
+Hex 6F
+Hex 20
+Hex 74
+Hex 6F
+Hex 20
+Hex 68
+Hex 74
+Hex 74
+Hex 70
+Hex 73
+Hex 3A
+Hex 2F
+Hex 2F
+Hex 6D
+Hex 61
+Hex 72
+Hex 69
+Hex 65
+Hex 2E
+Hex 6A
+Hex 73
+Hex 2E
+Hex 6F
+Hex 72
+Hex 67
+Hex 2F
+Hex 3F
+Hex 71
+Hex 75
+Hex 69
+Hex 6E
+Hex 65
+Hex 5F
+Hex 64
+Hex 65
+Hex 63
+Hex 6F
+Hex 6D
+Hex 70
+Hex 69
+Hex 6C
+Hex 65
+Hex 64
+Hex 0A
