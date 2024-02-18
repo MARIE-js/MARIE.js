@@ -426,9 +426,11 @@ var MarieSim,
         }
 
 
-        //this fixes the bug, where the user tries to go beyond HEX-FFFF
-        if(this[target] > 32767 || this[target] &lt; -32768){
-            throw new MarieSimError("OverFlow Error","the value " + this[target].toString() + "  is beyond the calculable range");
+        if(this[target] > 32767) {
+            this[target] -= 65536;
+        }
+        else if(this[target] < -32768) {
+            this[target] += 65536
         }
 
 
