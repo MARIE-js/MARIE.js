@@ -34,8 +34,9 @@
                           <ul class="nav nav-tabs">
                               <li class="active"><a data-toggle="tab" href="#output-log-outer">Output log</a></li>
                               <li><a data-toggle="tab" href="#register-log-outer">RTL log</a></li>
-                              <li><a data-toggle="tab" href="#watch-list-outer">Watch list</a></li>
-                              <li><a data-toggle="tab" href="#input-list-outer">Input list</a></li>
+                              <li><a data-toggle="tab" href="#watch-list-outer">Watches</a></li>
+                              <li><a data-toggle="tab" href="#input-list-outer">Inputs</a></li>
+                              <li><a data-toggle="tab" href="#display-outer">Display</a></li>
                           </ul>
                           <div class="tab-content">
                               <div id="output-log-outer" class="tab-pane in active">
@@ -77,6 +78,12 @@
                                   <hr>
                                   <textarea id="input-list"></textarea>
                               </div>
+                              <div id="display-outer" class="tab-pane">
+                                <div id="dma-display-memory-container">
+                                    <span>16x16 display, 0xF00-0xFFF:</span>
+                                    <table id="dma-display-memory"></table>
+                                </div>
+                            </div>
                           </div>
                       </div>
                   </div>

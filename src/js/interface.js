@@ -15,6 +15,8 @@ window.addEventListener("load", function() {
         memoryContainer = document.getElementById("memory-container"),
         memoryHeaders = document.getElementById("memory-headers"),
         memory = document.getElementById("memory"),
+        dmaDisplayMemoryContainer = document.getElementById("dma-display-memory-container"),
+        dmaDisplayMemory = document.getElementById("dma-display-memory"),
         statusInfo = document.getElementById("status-info"),
         outputSelect = document.getElementById("output-select"),
         outputLog = document.getElementById("output-log"),
@@ -287,7 +289,7 @@ window.addEventListener("load", function() {
         programCodeMirror.clearGutter("breakpoints");
     }
 
-    function populateMemoryView(sim) {
+    function populateMemoryView() {
         while (memory.firstChild) {
             memory.removeChild(memory.firstChild);
         }
@@ -321,7 +323,7 @@ window.addEventListener("load", function() {
                 cell = document.createElement("td");
                 cell.id = "cell" + (i + j);
                 cell.className = "cell";
-                cell.appendChild(document.createTextNode(Utility.hex(sim.memory[i + j].contents)));
+                cell.appendChild(document.createTextNode(Utility.hex(0)));
                 tr.appendChild(cell);
             }
 
@@ -329,6 +331,39 @@ window.addEventListener("load", function() {
         }
 
         memoryContainer.style.display = "inline-block";
+
+        while (dmaDisplayMemory.firstChild) {
+            dmaDisplayMemory.removeChild(dmaDisplayMemory.firstChild);
+        }
+        for (i = 0xf00; i < 4096; i += 16) {
+            tr = document.createElement("tr");
+
+            for (j = 0; j < 16; j++) {
+                cell = document.createElement("td");
+                cell.id = "dma-display-cell" + (i + j);
+                cell.className = "dma-display-cell";
+                tr.appendChild(cell);
+            }
+
+            dmaDisplayMemory.appendChild(tr);
+        }
+        dmaDisplayMemoryContainer.style.display = "inline-block";
+    }
+
+    function updateMemoryView(sim) {
+        // Populate memory cells from sim
+        for (var i = 0; i < 4096; i += 1) {
+            var cell = document.getElementById("cell" + i);
+            cell.textContent = Utility.hex(sim.memory[i].contents);
+        }
+        for (var i = 0xf00; i < 4096; i += 1) {
+            var cell = document.getElementById("dma-display-cell" + i);
+            var blue = Math.round((sim.memory[i].contents & 0x1f) / 31.0 * 255.0);
+            var green = Math.round(((sim.memory[i].contents >> 5) & 0x1f) / 31.0 * 255.0);
+            var red = Math.round(((sim.memory[i].contents >> 10) & 0x1f) / 31.0 * 255.0);
+            var color = "#"+red.toString(16)+green.toString(16)+blue.toString(16);
+            cell.style = "background-color: "+color+";";
+        }
     }
 
     function finishInputReplaceMemoryCell() {
@@ -713,6 +748,8 @@ window.addEventListener("load", function() {
         }
     });
 
+    populateMemoryView();
+
     function finishInput(output) {
         var type = $('#input-type').val(),
             value = $('#input-value').val().split(" ").join("");
@@ -1071,6 +1108,7 @@ window.addEventListener("load", function() {
 
             try {
                 sim = new MarieSim(asm, inputFunc, outputFunc);
+                updateMemoryView(sim);
             } catch (e) {
                 setStatus(e.message, true);
                 assembleButton.innerHTML = "<span class='fa fa-th'></span> Assemble";
@@ -1128,7 +1166,6 @@ window.addEventListener("load", function() {
                 }
             });
 
-            populateMemoryView(sim);
             symbolCells = populateWatchList(asm, sim);
             initializeOutputLog();
             initializeRegisterLog();
@@ -1150,6 +1187,15 @@ window.addEventListener("load", function() {
                 var cell = document.getElementById("cell" + e.address);
                 cell.textContent = Utility.hex(e.newCell.contents, false);
                 cell.classList.add("memory-changed");
+
+                if (e.address >= 0xF00) {
+                    var dmaDisplayCell = document.getElementById("dma-display-cell" + e.address);
+                    var blue = Math.round((e.newCell.contents & 0x1f) / 31.0 * 255.0);
+                    var green = Math.round(((e.newCell.contents >> 5) & 0x1f) / 31.0 * 255.0);
+                    var red = Math.round(((e.newCell.contents >> 10) & 0x1f) / 31.0 * 255.0);
+                    var color = "#"+red.toString(16)+green.toString(16)+blue.toString(16);
+                    dmaDisplayCell.style = "background-color: "+color+";";
+                }
 
                 for (var address in symbolCells) {
                     if (address == e.address) {
@@ -1262,6 +1308,14 @@ window.addEventListener("load", function() {
                     sim.memory[action.address].contents = action.value;
                     var cell = document.getElementById("cell" + action.address);
                     cell.textContent = Utility.hex(action.value, false);
+                    if (action.address >= 0xf00) {
+                        var dmaDisplayCell = document.getElementById("dma-display-cell" + action.address);
+                        var blue = Math.round((action.value & 0x1f) / 31.0 * 255.0);
+                        var green = Math.round(((action.value >> 5) & 0x1f) / 31.0 * 255.0);
+                        var red = Math.round(((action.value >> 10) & 0x1f) / 31.0 * 255.0);
+                        var color = "#"+red.toString(16)+green.toString(16)+blue.toString(16);
+                        dmaDisplayCell.style = "background-color: "+color+";";
+                    }
                     for (var address in symbolCells) {
                         if (address == action.address) {
                             symbolCells[address].textContent = Utility.hex(action.value);
