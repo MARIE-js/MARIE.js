@@ -350,6 +350,17 @@ window.addEventListener("load", function() {
         dmaDisplayMemoryContainer.style.display = "inline-block";
     }
 
+    function getColorFromMem(x) {
+        var blue = Math.round((x & 0x1f) / 31.0 * 255.0);
+        var green = Math.round(((x >> 5) & 0x1f) / 31.0 * 255.0);
+        var red = Math.round(((x >> 10) & 0x1f) / 31.0 * 255.0);
+        var redString = ("0"+red.toString(16)).slice(-2);
+        var greenString = ("0"+green.toString(16)).slice(-2);
+        var blueString = ("0"+blue.toString(16)).slice(-2);
+        var color = "#"+redString+greenString+blueString;
+        return color;
+    }
+
     function updateMemoryView(sim) {
         // Populate memory cells from sim
         for (var i = 0; i < 4096; i += 1) {
@@ -358,11 +369,7 @@ window.addEventListener("load", function() {
         }
         for (var i = 0xf00; i < 4096; i += 1) {
             var cell = document.getElementById("dma-display-cell" + i);
-            var blue = Math.round((sim.memory[i].contents & 0x1f) / 31.0 * 255.0);
-            var green = Math.round(((sim.memory[i].contents >> 5) & 0x1f) / 31.0 * 255.0);
-            var red = Math.round(((sim.memory[i].contents >> 10) & 0x1f) / 31.0 * 255.0);
-            var color = "#"+red.toString(16)+green.toString(16)+blue.toString(16);
-            cell.style = "background-color: "+color+";";
+            cell.style = "background-color: "+getColorFromMem(sim.memory[i].contents)+";";
         }
     }
 
@@ -1190,11 +1197,7 @@ window.addEventListener("load", function() {
 
                 if (e.address >= 0xF00) {
                     var dmaDisplayCell = document.getElementById("dma-display-cell" + e.address);
-                    var blue = Math.round((e.newCell.contents & 0x1f) / 31.0 * 255.0);
-                    var green = Math.round(((e.newCell.contents >> 5) & 0x1f) / 31.0 * 255.0);
-                    var red = Math.round(((e.newCell.contents >> 10) & 0x1f) / 31.0 * 255.0);
-                    var color = "#"+red.toString(16)+green.toString(16)+blue.toString(16);
-                    dmaDisplayCell.style = "background-color: "+color+";";
+                    dmaDisplayCell.style = "background-color: "+getColorFromMem(e.newCell.contents)+";";
                 }
 
                 for (var address in symbolCells) {
@@ -1310,11 +1313,7 @@ window.addEventListener("load", function() {
                     cell.textContent = Utility.hex(action.value, false);
                     if (action.address >= 0xf00) {
                         var dmaDisplayCell = document.getElementById("dma-display-cell" + action.address);
-                        var blue = Math.round((action.value & 0x1f) / 31.0 * 255.0);
-                        var green = Math.round(((action.value >> 5) & 0x1f) / 31.0 * 255.0);
-                        var red = Math.round(((action.value >> 10) & 0x1f) / 31.0 * 255.0);
-                        var color = "#"+red.toString(16)+green.toString(16)+blue.toString(16);
-                        dmaDisplayCell.style = "background-color: "+color+";";
+                        dmaDisplayCell.style = "background-color: "+getColorFromMem(action.value)+";";
                     }
                     for (var address in symbolCells) {
                         if (address == action.address) {
