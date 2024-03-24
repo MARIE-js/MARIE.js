@@ -1,6 +1,6 @@
 {
   "name": "MARIE.js",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "MARIE.js is an implementation of a simulator for a 'Machine Architecture that is Really Intuitive and Easy' from The Essentials of Computer Organization and Architecture (Linda Null, Julia Lobur) in JavaScript.",
   "main": "main.js",
   "scripts": {
@@ -18,7 +18,6 @@
     "mariejs",
     "marie",
     "assembly",
-    "learninggrunt ",
     "javascript"
   ],
   "author": "Jason Nguyen, Saurabh Joshi, Eric Jiang and Erfan Norozi",
@@ -27,26 +26,20 @@
     "url": "https://github.com/MARIE-js/MARIE.js/issues"
   },
   "devDependencies": {
-    "gh-pages": "^2.0.1",
-    "grunt": "^1.3.0",
-    "grunt-contrib-clean": "~1.0.0",
-    "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-connect": "~1.0.2",
+    "gh-pages": "^6.1.1",
+    "grunt": "^1.6.1",
+    "grunt-cli": "^1.4.3",
+    "grunt-contrib-clean": "~2.0.1",
+    "grunt-contrib-concat": "^2.1.0",
+    "grunt-contrib-connect": "~4.0.0",
     "grunt-contrib-copy": "~1.0.0",
-    "grunt-contrib-jshint": "^1.0.0",
-    "grunt-contrib-uglify": "^1.0.1",
-    "grunt-ejs": "~0.3.0",
-    "grunt-html": "^7.0.0",
-    "grunt-jsdoc": "~2.1.0",
-    "grunt-open": "~0.2.3",
-    "grunt-regenerator": "^3.1.0",
-    "load-grunt-tasks": "^3.5.0"
-  },
-  "dependencies": {
-    "electron": "^11.5.0",
-    "grunt-cli": "^1.2.0",
-    "grunt-contrib-connect": "~1.0.2",
-    "grunt-jsdoc": "~2.1.0",
-    "load-grunt-tasks": "^3.5.0"
+    "grunt-contrib-jshint": "^3.2.0",
+    "grunt-contrib-uglify": "^5.2.2",
+    "grunt-ejs": "~1.0.0",
+    "grunt-html": "^17.0.0",
+    "grunt-jsdoc": "~2.4.1",
+    "grunt-open": "~0.2.4",
+    "grunt-regenerator": "^4.0.0",
+    "load-grunt-tasks": "^5.1.0"
   }
 }

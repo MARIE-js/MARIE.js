@@ -1,7 +1,6 @@
-<% title = "About" %>
-<% include partials/header.ejs %>
+<%- include('partials/header.ejs', {title: 'About'}) %>
     <body>
-        <% include partials/nav %>
+        <%- include('partials/nav') %>
         <main>
             <div id="about" class="container">
       				<h1 class="center">MARIE.js <span class="version">v<%= version %></span></h1>
@@ -54,4 +53,4 @@
       </div>
     </main>
 
-<% include partials/footer %>
+<%- include('partials/footer') %>

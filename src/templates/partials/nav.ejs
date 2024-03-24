@@ -16,7 +16,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
       <li><a href="./"><span class="fa fa-home"></span> Home </a></li>
-      <% if(title == "Home") { %>
+      <% if(locals.home) { %>
       <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-file"></span> File
           <span class="caret"></span></a>
@@ -68,7 +68,7 @@
               <li><a href="about.html"><span class="fa fa-info-circle"></span> About </a></li>
               <li><a id="displayVersion"><span class="fa fa-hashtag"></span> Current Version</a></li>
               <li><a href="https://github.com/MARIE-js/MARIE.js/releases" target="_blank"><span class="fa fa-github-alt"></span> Releases</a></li>
-              <% if(title == "Home") { %>
+              <% if(locals.home) { %>
               <li><a id="starttour"><span class="fa fa-ship"></span> Rerun Tour</a></li>
               <% } %>
               <li class="divider"></li>

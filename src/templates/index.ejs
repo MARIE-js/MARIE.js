@@ -1,7 +1,6 @@
-<% title = "Home" %>
-<% include partials/header.ejs %>
+<%- include('partials/header.ejs', { title: 'Home'}) %>
     <body class="preload">
-        <% include partials/nav %>
+        <%- include('partials/nav', { home: true}) %>
         <main>
             <div class="container">
                 <div id="warn-missing-file" class="alert alert-warning" hidden>
@@ -91,7 +90,7 @@
               <div id="status-info-container" class="row light-grey">
                   <div id="status-info">MARIE.js</div>
               </div>
-              <div class="row" style="align:text-center">
+              <div class="row" style="text-align:center">
                 <div id="memory-display" data-toggle="tooltip" data-placement="right" title="Green: Current PC; Yellow: Current MAR" >
                     <table id="memory-headers"></table>
                     <div id="memory-container">
