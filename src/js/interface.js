@@ -354,10 +354,7 @@ window.addEventListener("load", function() {
         var blue = Math.round((x & 0x1f) / 31.0 * 255.0);
         var green = Math.round(((x >> 5) & 0x1f) / 31.0 * 255.0);
         var red = Math.round(((x >> 10) & 0x1f) / 31.0 * 255.0);
-        var redString = ("0"+red.toString(16)).slice(-2);
-        var greenString = ("0"+green.toString(16)).slice(-2);
-        var blueString = ("0"+blue.toString(16)).slice(-2);
-        var color = "#"+redString+greenString+blueString;
+        var color = `rgb(${red}, ${green}, ${blue})`;
         return color;
     }
 
