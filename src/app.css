@@ -1,0 +1,13 @@
+:root {
+	--bulma-body-overflow-x: auto;
+	--bulma-body-overflow-y: auto;
+	--marie-highlight-pc: hsla(123, 100%, 70%, 0.2);
+	--marie-highlight-mar: hsla(49, 100%, 70%, 0.2);
+	--marie-highlight-hover: hsla(223, 14%, 50%, 0.1);
+	--marie-highlight-pc-mar: linear-gradient(
+		var(--marie-highlight-pc) 0%,
+		var(--marie-highlight-pc) 50%,
+		var(--marie-highlight-mar) 50%,
+		var(--marie-highlight-mar) 100%
+	);
+}

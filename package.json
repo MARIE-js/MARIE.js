@@ -1,45 +1,38 @@
 {
-  "name": "MARIE.js",
-  "version": "1.4.0",
-  "description": "MARIE.js is an implementation of a simulator for a 'Machine Architecture that is Really Intuitive and Easy' from The Essentials of Computer Organization and Architecture (Linda Null, Julia Lobur) in JavaScript.",
-  "main": "main.js",
-  "scripts": {
-    "start": "grunt bar-dev",
-    "build": "grunt build",
-    "deploy": "grunt build && gh-pages -d build",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "homepage": "https://marie-js.github.io/MARIE.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MARIE-js/MARIE.js.git"
-  },
-  "keywords": [
-    "mariejs",
-    "marie",
-    "assembly",
-    "javascript"
-  ],
-  "author": "Jason Nguyen, Saurabh Joshi, Eric Jiang and Erfan Norozi",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/MARIE-js/MARIE.js/issues"
-  },
-  "devDependencies": {
-    "gh-pages": "^6.1.1",
-    "grunt": "^1.6.1",
-    "grunt-cli": "^1.4.3",
-    "grunt-contrib-clean": "~2.0.1",
-    "grunt-contrib-concat": "^2.1.0",
-    "grunt-contrib-connect": "~4.0.0",
-    "grunt-contrib-copy": "~1.0.0",
-    "grunt-contrib-jshint": "^3.2.0",
-    "grunt-contrib-uglify": "^5.2.2",
-    "grunt-ejs": "~1.0.0",
-    "grunt-html": "^17.0.0",
-    "grunt-jsdoc": "~2.4.1",
-    "grunt-open": "~0.2.4",
-    "grunt-regenerator": "^4.0.0",
-    "load-grunt-tasks": "^5.1.0"
-  }
+	"name": "marie-js",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-check --tsconfig ./tsconfig.json",
+		"format": "prettier . --write",
+		"format:check": "prettier . --check",
+		"test": "vitest"
+	},
+	"devDependencies": {
+		"@sveltejs/vite-plugin-svelte": "^3.0.2",
+		"@tsconfig/svelte": "^5.0.4",
+		"@types/lodash": "^4.17.0",
+		"@types/node": "^20.12.5",
+		"prettier": "^3.2.5",
+		"svelte": "^4.2.12",
+		"svelte-check": "^3.6.8",
+		"tslib": "^2.6.2",
+		"typescript": "^5.4.3",
+		"vite": "^5.2.7",
+		"vitest": "^1.4.0"
+	},
+	"dependencies": {
+		"@codemirror/language": "^6.10.1",
+		"@codemirror/legacy-modes": "^6.3.3",
+		"@fortawesome/free-solid-svg-icons": "^6.5.1",
+		"bulma": "^1.0.0",
+		"codemirror": "^6.0.1",
+		"lodash": "^4.17.21",
+		"split.js": "^1.6.5",
+		"svelte-fa": "^4.0.2"
+	}
 }
