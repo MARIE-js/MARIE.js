@@ -19,6 +19,7 @@ export interface Project {
 	inputs: InputItem[];
 	outputMode: InputOutputMode;
 }
+export type ProjectWithMeta = Project & { _timestamp: number };
 
 const defaultProject: Project = {
 	code: '',
@@ -42,7 +43,7 @@ function readProject(x: any) {
 	return project;
 }
 
-export function getProjects(): { [id: string]: Project } {
+export function getProjects(): { [id: string]: ProjectWithMeta } {
 	try {
 		const parsed = JSON.parse(localStorage.getItem('marie.projects') ?? '[]');
 		if (Array.isArray(parsed)) {
@@ -72,7 +73,17 @@ export function restoreProject() {
 	return { projectId, project };
 }
 
+export function loadProject(projectId: string) {
+	sessionStorage.setItem('marie.projectId', projectId);
+	const projects = getProjects();
+	const project: Project = projects[projectId] ?? { ...defaultProject };
+	return project;
+}
+
 export function saveProject(projectId: string, project: Project) {
+	if (!projectId || !project) {
+		return;
+	}
 	const projects: { [key: string]: any } = getProjects();
 	projects[projectId] = { ...project, _timestamp: Date.now(), _id: projectId };
 	const result = Object.values(projects)

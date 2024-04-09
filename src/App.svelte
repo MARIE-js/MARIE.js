@@ -18,11 +18,12 @@
 	import InputsPanel from './lib/InputsPanel.svelte';
 	import Simulator from './lib/Simulator.svelte';
 	import { tick } from 'svelte';
-	import { saveProject, restoreProject } from './project';
+	import { saveProject, restoreProject, getProjects, loadProject } from './project';
 	import { debounce } from 'lodash';
 	import DataPath from './lib/DataPath.svelte';
 	import Fa from 'svelte-fa';
-	import { faMicrochip } from '@fortawesome/free-solid-svg-icons';
+	import { faFolderOpen, faMicrochip } from '@fortawesome/free-solid-svg-icons';
+	import Recent from './lib/Recent.svelte';
 
 	let { projectId, project } = restoreProject();
 
@@ -38,6 +39,7 @@
 	let inputLogIndices: number[] = [];
 	let inputsPanel: InputsPanel | undefined;
 	let showDataPath = false;
+	let recentOpen = false;
 
 	$: pcLine = program?.sourceMap[state.registers.PC];
 	$: marLine = program?.sourceMap[state.registers.MAR];
@@ -267,6 +269,16 @@
 			$settings.rtlLogOpen = true;
 		}
 	}
+
+	function openProject(e: { detail: { key: string } }) {
+		if (project.code !== '') {
+			saveProject(projectId, project);
+		}
+		projectId = '';
+		project = loadProject(e.detail.key);
+		projectId = e.detail.key;
+		recentOpen = false;
+	}
 </script>
 
 <svelte:window on:beforeunload={() => saveProject(projectId, project)} />
@@ -275,6 +287,13 @@
 	<nav class="navbar" aria-label="main navigation">
 		<div class="navbar-menu">
 			<div class="navbar-start">
+				<div class="navbar-item">
+					<button class="button" on:click={() => (recentOpen = true)} title="Recent files">
+						<span class="icon">
+							<Fa icon={faFolderOpen} />
+						</span>
+					</button>
+				</div>
 				<div class="navbar-item">
 					<button class="button" on:click={downloadBin}>Download Binary</button>
 				</div>
@@ -395,6 +414,12 @@
 			</div>
 		</SplitPanel>
 	</div>
+	<Recent
+		active={recentOpen}
+		currentKey={projectId}
+		on:cancel={() => (recentOpen = false)}
+		on:open={openProject}
+	/>
 </main>
 
 <style>

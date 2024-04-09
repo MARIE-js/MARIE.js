@@ -1,10 +1,11 @@
-import { StreamLanguage, syntaxTree } from '@codemirror/language';
+import { HighlightStyle, StreamLanguage, syntaxTree } from '@codemirror/language';
 import { simpleMode } from '@codemirror/legacy-modes/mode/simple-mode';
 import {
 	CompletionContext,
 	type CompletionResult,
 } from '@codemirror/autocomplete';
 import { MarieSim } from './marie';
+import { tags } from '@lezer/highlight';
 
 const syntax = simpleMode({
 	start: [
@@ -73,6 +74,18 @@ const syntax = simpleMode({
 });
 
 export const marieLanguage = StreamLanguage.define(syntax);
+
+export const styles = HighlightStyle.define([
+    { tag: tags.keyword, color: 'var(--marie-syntax-keyword)' },
+    { tag: tags.comment, color: 'var(--marie-syntax-comment)' },
+    { tag: tags.labelName, color: 'var(--marie-syntax-label-name)' },
+    { tag: tags.name, color: 'var(--marie-syntax-name)' },
+    {
+        tag: tags.processingInstruction,
+        color: 'var(--marie-syntax-processing-instruction)',
+    },
+    { tag: tags.number, color: 'var(--marie-syntax-number)' },
+]);
 
 export function getCompletions(
 	context: CompletionContext,

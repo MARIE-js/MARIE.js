@@ -21,7 +21,7 @@
 
 	import { debounce, throttle } from 'lodash';
 	import { assemble, type AssemblyError } from '../marie';
-	import { getCompletions, marieLanguage } from '../syntax';
+	import { getCompletions, marieLanguage, styles } from '../syntax';
 
 	export let text: string = '';
 	export let modified = false;
@@ -78,18 +78,6 @@
 		},
 	};
 
-	const styles = HighlightStyle.define([
-		{ tag: tags.keyword, color: 'var(--marie-syntax-keyword)' },
-		{ tag: tags.comment, color: 'var(--marie-syntax-comment)' },
-		{ tag: tags.labelName, color: 'var(--marie-syntax-label-name)' },
-		{ tag: tags.name, color: 'var(--marie-syntax-name)' },
-		{
-			tag: tags.processingInstruction,
-			color: 'var(--marie-syntax-processing-instruction)',
-		},
-		{ tag: tags.number, color: 'var(--marie-syntax-number)' },
-	]);
-
 	const themeCompartment = new Compartment();
 
 	onMount(() => {
@@ -129,8 +117,12 @@
 	let oldText = text;
 	function setContents(view: EditorView | undefined, text: string) {
 		if (view && oldText !== text) {
-			view.state.update({
-				changes: [{ from: 0, to: view.state.doc.length, insert: text }],
+			view.dispatch({
+				changes: {
+					from: 0,
+					to: view.state.doc.length,
+					insert: text,
+				},
 			});
 			modified = false;
 		}
@@ -370,21 +362,5 @@
 		overflow: auto;
 		--marie-active-line-background: hsla(223, 14%, 50%, 0.1);
 		--marie-highlight-error: hsla(348deg, 100%, 70%, 0.25);
-
-		--marie-syntax-keyword: hsl(219, 86%, 39%);
-		--marie-syntax-comment: hsl(218, 8%, 49%);
-		--marie-syntax-label-name: hsl(0, 55%, 47%);
-		--marie-syntax-name: hsl(0, 55%, 47%);
-		--marie-syntax-number: hsl(27, 83%, 53%);
-		--marie-syntax-processing-instruction: hsl(281, 81%, 36%);
-	}
-
-	.editor.is-dark {
-		--marie-syntax-keyword: hsl(266, 68%, 67%);
-		--marie-syntax-comment: hsl(0, 0%, 45%);
-		--marie-syntax-label-name: hsl(54, 63%, 66%);
-		--marie-syntax-name: hsl(54, 63%, 66%);
-		--marie-syntax-number: hsl(128, 65%, 64%);
-		--marie-syntax-processing-instruction: hsl(202, 76%, 56%);
 	}
 </style>
