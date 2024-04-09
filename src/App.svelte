@@ -62,6 +62,7 @@
 		codeModified = false;
 		program = e.detail.program;
 		setStatus('Successfully assembled program.');
+		reset();
 	}
 
 	function onError(e: { detail: { message: string } }) {
@@ -89,7 +90,9 @@
 				setStatus('Moved one microstep back.');
 				break;
 			case 'restart':
+				reset();
 				setStatus('Reset machine state (memory contents preserved).');
+				break;
 		}
 	}
 
@@ -125,7 +128,7 @@
 		}
 	}
 
-	async function getInput() {
+	function getInput() {
 		let hadError = false;
 		let value: number | null = null;
 		project.inputs = project.inputs.map((input) => {
@@ -187,7 +190,7 @@
 	}
 
 	let oldLogLength = 0;
-	function rewindInput(log: Action[]) {
+	function rewind(log: Action[]) {
 		if (oldLogLength <= log.length) {
 			oldLogLength = log.length;
 			return;
@@ -203,7 +206,7 @@
 				continue;
 			}
 			if (input.format === 'unicode') {
-				input.queued = `${input.consumed[input.consumed.length - 1]}${input.queued ?? ''}`;
+				input.queued = `${input.consumed[input.consumed.length - 1]}${input.queued}`;
 				input.consumed = input.consumed.substring(0, input.consumed.length - 1);
 			} else {
 				const idx = input.consumed.lastIndexOf('\n');
@@ -215,9 +218,30 @@
 			count++;
 		}
 		project.inputs = project.inputs;
+		outputActions = outputActions.filter((x) => x.index < log.length);
 		oldLogLength = log.length;
 	}
-	$: rewindInput(log);
+	$: rewind(log);
+
+	let outputActions: { value: number; index: number }[] = [];
+	$: outputs = outputActions.map((x) => x.value);
+	function onOutput(e: { detail: { index: number; value: number } }) {
+		outputActions = [...outputActions, e.detail];
+	}
+
+	function reset() {
+		for (const input of project.inputs) {
+			if (input.format === 'unicode') {
+				input.queued = `${input.consumed}${input.queued}`;
+			} else if (input.consumed !== '') {
+				input.queued = `${input.consumed}\n${input.queued}`;
+			}
+			input.consumed = '';
+		}
+		project.inputs = project.inputs;
+		inputLogIndices = [];
+		outputs = [];
+	}
 
 	function downloadBin() {
 		const array = new ArrayBuffer(sim.memory.length * 2);
@@ -320,6 +344,7 @@
 								{codeModified}
 								on:assembled={onAssembled}
 								on:error={onError}
+								on:output={onOutput}
 								on:update={onUpdate}
 								on:pause={onPause}
 								on:step={onStep}
@@ -344,7 +369,7 @@
 						title="Output log"
 						bind:open={$settings.outputLogOpen}
 					>
-						<OutputLog {log} bind:outputMode={project.outputMode} />
+						<OutputLog {outputs} bind:outputMode={project.outputMode} />
 					</CollapsiblePanel>
 					<CollapsiblePanel title="RTL log" bind:open={$settings.rtlLogOpen}>
 						<RtlLog {log} on:hover-rtl={(e) => (addressHover = e.detail.pc)} />

@@ -15,6 +15,7 @@
 		faCaretRight,
 		faCheck,
 		faClockRotateLeft,
+		faForward,
 		faHammer,
 		faPause,
 		faPlay,
@@ -35,16 +36,21 @@
 	let log: Action[] = [];
 	let running = false;
 	let hasBeenRun = false;
+	let fastMode = false;
+	let lockFastMode = false;
 
 	$: canStepBack = log.length > 0;
+	$: sim.enableLog = !fastMode;
 
-	const updateState = throttle(() => {
+	function forceUpdateState() {
 		state = sim.state();
 		log = [...sim.log];
 		dispatch('update', { state, log });
-	}, 50);
+	}
+	const updateState = throttle(forceUpdateState, 50);
 
 	function assembleCode() {
+		lockFastMode = false;
 		running = false;
 		error = false;
 		hasBeenRun = false;
@@ -83,12 +89,12 @@
 	}
 
 	const speeds = [
-		{ maxSteps: 0, delay: 1000 },
-		{ maxSteps: 0, delay: 500 },
-		{ maxSteps: 0, delay: 250 },
-		{ maxSteps: 0, delay: 10 },
-		{ maxSteps: 0, delay: 30 },
-		{ maxSteps: 0, delay: 0 },
+		{ maxSteps: 1, delay: 1000 },
+		{ maxSteps: 1, delay: 500 },
+		{ maxSteps: 1, delay: 250 },
+		{ maxSteps: 1, delay: 10 },
+		{ maxSteps: 1, delay: 30 },
+		{ maxSteps: 1, delay: 0 },
 		{ maxSteps: 10, delay: 0 },
 		{ maxSteps: 50, delay: 0 },
 		{ maxSteps: 100, delay: 0 },
@@ -96,22 +102,24 @@
 	];
 	$: speedSetting = speeds[speed];
 	async function run() {
+		if (fastMode) {
+			runFast();
+			return;
+		}
+		lockFastMode = true;
 		running = true;
 		hasBeenRun = true;
 		dispatch('action', { type: 'run' });
-		while (running && !sim.halted) {
+		while (running) {
 			const start = performance.now();
-			await doRunStep();
 			for (
 				let i = 0;
-				i < speedSetting.maxSteps &&
-				running &&
-				!sim.halted &&
-				performance.now() - start < 20;
+				i < speedSetting.maxSteps && running && performance.now() - start < 20;
 				i++
 			) {
 				await doRunStep();
 			}
+			updateState();
 			await new Promise((resolve) => {
 				setTimeout(() => resolve(null), speedSetting.delay);
 			});
@@ -119,9 +127,38 @@
 		running = false;
 	}
 
+	async function runFast() {
+		lockFastMode = true;
+		running = true;
+		hasBeenRun = true;
+		dispatch('action', { type: 'run' });
+		while (running) {
+			const actions = [];
+			const start = performance.now();
+			while (performance.now() - start < 200) {
+				for (let i = 0; i < 100000; i++) {
+					actions.push(await sim.microStep());
+				}
+			}
+			for (const action of actions) {
+				if (action?.type === 'output') {
+					dispatch('output', { index: 0, value: action.value });
+				} else if (action?.type === 'halt' && action.halt) {
+					dispatch('halt', { error: action.error });
+					running = false;
+				}
+			}
+			updateState();
+			await new Promise((resolve) => {
+				setTimeout(() => resolve(null), 0);
+			});
+		}
+		running = false;
+	}
+
 	async function doRunStep() {
 		// When running continuously, skip over some virtual actions so that the clock pulses are more regular
-		while (running && !sim.halted) {
+		while (running) {
 			const action = await doMicroStep();
 			if (action?.type === 'decode' || action?.type == 'step-end') {
 				continue;
@@ -141,7 +178,7 @@
 
 	async function step() {
 		running = true;
-		while (running && !sim.halted) {
+		while (running) {
 			const result = await doMicroStep();
 			if (result?.type === 'step-end') {
 				updateState();
@@ -154,9 +191,10 @@
 
 	async function microStep() {
 		running = true;
-		while (running && !sim.halted) {
+		while (running) {
 			const result = await doMicroStep();
 			if (result !== null && result.type !== 'step') {
+				updateState();
 				if (result.type !== 'halt') {
 					dispatch('microStep', { type: result.type });
 				}
@@ -168,9 +206,12 @@
 
 	async function doMicroStep() {
 		const result = await sim.microStep();
-		updateState();
 		if (result?.type === 'halt' && result.halt) {
 			dispatch('halt', { error: result.error });
+			running = false;
+			forceUpdateState();
+		} else if (result?.type === 'output') {
+			dispatch('output', { index: sim.log.length, value: result.value });
 		}
 		return result;
 	}
@@ -193,6 +234,7 @@
 	}
 
 	function restart() {
+		lockFastMode = false;
 		running = false;
 		hasBeenRun = false;
 		sim.resetRegisters();
@@ -324,8 +366,27 @@
 	</button>
 	<div class="speed" title="Set the execution speed">
 		<div>Speed:</div>
-		<input type="range" bind:value={speed} min="0" max="9" step="1" />
+		<input
+			type="range"
+			disabled={fastMode}
+			bind:value={speed}
+			min="0"
+			max="9"
+			step="1"
+		/>
 	</div>
+
+	<button
+		class="button"
+		class:is-info={fastMode}
+		title={lockFastMode
+			? `Cannot be toggled until the simulator is restarted.`
+			: `Click to ${fastMode ? 'disable' : 'enable'} running as fast as possible, disregarding breakpoints and the RTL log.`}
+		disabled={lockFastMode}
+		on:click={() => (fastMode = !fastMode)}
+	>
+		<span class="icon"><Fa icon={faForward} /></span>
+	</button>
 </div>
 
 <style>

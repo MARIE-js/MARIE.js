@@ -244,6 +244,9 @@ export class MarieSim {
 		return this._log;
 	}
 
+	/** Whether to produce an action log to allow stepping backwards */
+	enableLog: boolean;
+
 	private _origin: number;
 	private _memory: number[];
 	private _registers: { [r in Register]: number };
@@ -282,6 +285,7 @@ export class MarieSim {
 		this._decoded = undefined;
 		this._comparisonResult = false;
 		this._inputCallback = inputCallback;
+		this.enableLog = true;
 
 		const sim = this;
 
@@ -719,11 +723,13 @@ export class MarieSim {
 	 * Add to the replay log
 	 */
 	private addLog(action: Action) {
-		this._log.push({
-			...action,
-			microStepCounter: this._microProgramCounter,
-			inputInterrupt: this._inputInterrupt,
-		});
+		if (this.enableLog) {
+			this._log.push({
+				...action,
+				microStepCounter: this._microProgramCounter,
+				inputInterrupt: this._inputInterrupt,
+			});
+		}
 	}
 
 	/** The MARIE instruction set */

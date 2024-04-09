@@ -1,27 +1,12 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import type { Action, OutputAction } from '../marie';
-	import { bin, dec, hex, oct, logWatcher } from '../utils';
+	import { bin, dec, hex, oct } from '../utils';
 	import type { InputOutputMode } from '../settings';
 
-	export let log: Action[];
+	export let outputs: number[];
 	export let outputMode: InputOutputMode;
 
 	let element: HTMLDivElement | undefined;
-
-	let outputs: number[] = [];
-	const updateLogs = logWatcher(
-		(logs) => {
-			const newOutputs = (
-				logs.filter((action) => action.type === 'output') as OutputAction[]
-			).map((o) => o.value);
-			if (newOutputs.length > 0) {
-				outputs = [...outputs, ...newOutputs];
-			}
-		},
-		() => (outputs = []),
-	);
-	$: updateLogs(log);
 
 	function showValue(mode: InputOutputMode, value: number) {
 		switch (mode) {
