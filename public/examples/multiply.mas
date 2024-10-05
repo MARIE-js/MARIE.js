@@ -1,0 +1,69 @@
+/ Multiplication Calculator
+/ by the MARIE.js Team
+/ Copyright (C) 2016. Licensed under the MIT License
+
+/ Prompt user to type in integers
+Clear
+Store result
+Input
+Store X
+Input
+Store Y
+
+/ check if Y is negative, if -ve negate Y and set negative flag
+Load Y
+Skipcond 000
+Jump nonneg
+
+Subt Y
+Subt Y
+Store Y
+Clear
+Add one
+Store negflag
+Clear
+Jump loop
+
+nonneg,  Clear
+         Store negflag
+         / check if Y is zero, if it is, then we jump to halt
+         Load Y
+         Skipcond 400
+         Jump loop / false
+         Jump halt / true
+
+/ Loop for performing iterative addition
+loop,    Load result
+         Add X
+         Store result
+
+         Load Y
+         Subt one
+         Store Y
+	
+         Skipcond 400 / have we completed the multiplication?
+         Jump loop / no; repeat loop
+         / yes, so exit the loop
+
+/ check for negative flag, if it is set, negate the result
+Load negflag
+Skipcond 800
+Jump halt
+
+/ negate result
+Load result
+Subt result
+Subt result
+Store result
+/ run the next three instructions, which halts the program
+
+/ Output result to user then halt program
+halt,    Load result
+         Output	
+         Halt
+
+X, DEC 0
+Y, DEC 0
+one, DEC 1
+negflag, DEC 0
+result, DEC 0

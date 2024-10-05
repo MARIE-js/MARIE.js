@@ -13,7 +13,6 @@
 		StateEffect,
 	} from '@codemirror/state';
 	import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
-	import { tags } from '@lezer/highlight';
 
 	import { onMount } from 'svelte';
 	import { basicSetup } from 'codemirror';
@@ -352,6 +351,23 @@
 			},
 		}),
 	];
+
+	export function scrollToPC() {
+		if (pcLine === undefined || !view) {
+			return;
+		}
+
+		const pos = view.state.doc.line(pcLine).from;
+		const block = view.lineBlockAt(pos);
+		if (
+			block.top > view.scrollDOM.scrollTop + view.scrollDOM.offsetHeight ||
+			block.bottom < view.scrollDOM.scrollTop
+		) {
+			view.scrollDOM.scrollTo({
+				top: block.top - 100,
+			});
+		}
+	}
 </script>
 
 <div class="editor" class:is-dark={$darkMode} bind:this={div} />

@@ -1,0 +1,28 @@
+/ Simple If Else Demostration
+/ by the MARIE.js Team
+/ Copyright (C) 2016. Licensed under the MIT License
+
+/ User Inputs a number
+Input
+Store X
+
+/ If number is greater than 0, skip the line after the Skipcond 800
+Skipcond 800
+Jump If
+Jump Else
+
+/ if number is positive, return original number
+If,   Load X
+      Output
+      Halt
+
+/ otherwise return one less than the user input
+Else, Load X
+      Subt one
+      Output
+      Halt
+
+
+/ Variables
+X,    DEC 0
+one,  DEC 1

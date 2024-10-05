@@ -12,7 +12,7 @@ const mediaQueryStore = (query: string) => {
 const browserDarkMode = mediaQueryStore('(prefers-color-scheme: dark)');
 
 export interface Settings {
-	theme: 'dark' | 'light' | 'system';
+	invertTheme: boolean;
 	leftPanel: number;
 	topPanel: number;
 	editorPanel: number;
@@ -28,7 +28,7 @@ export interface Settings {
 export const settings = writable<Settings>(
 	(() => {
 		const s: Settings = {
-			theme: 'system',
+			invertTheme: false,
 			leftPanel: 70,
 			topPanel: 70,
 			editorPanel: 50,
@@ -56,14 +56,10 @@ settings.subscribe((v) => {
 export const darkMode = derived(
 	[browserDarkMode, settings],
 	([$browserDarkMode, $settings]) => {
-		switch ($settings.theme) {
-			case 'light':
-				return false;
-			case 'dark':
-				return true;
-			default:
-				return $browserDarkMode;
+		if ($settings.invertTheme) {
+			return !$browserDarkMode;
 		}
+		return $browserDarkMode;
 	},
 );
 

@@ -17,13 +17,34 @@
 	import Display from './lib/Display.svelte';
 	import InputsPanel from './lib/InputsPanel.svelte';
 	import Simulator from './lib/Simulator.svelte';
-	import { tick } from 'svelte';
-	import { saveProject, restoreProject, getProjects, loadProject } from './project';
+	import { onMount, tick } from 'svelte';
+	import {
+		saveProject,
+		restoreProject,
+		loadProject,
+		newProject,
+	} from './project';
 	import { debounce } from 'lodash';
 	import DataPath from './lib/DataPath.svelte';
 	import Fa from 'svelte-fa';
-	import { faFolderOpen, faMicrochip } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faPalette,
+		faDatabase,
+		faDownload,
+		faFile,
+		faFolderOpen,
+		faGlobe,
+		faMicrochip,
+		faLightbulb,
+		faUpload,
+		faShareNodes,
+	} from '@fortawesome/free-solid-svg-icons';
 	import Recent from './lib/Recent.svelte';
+	import examples from './examples';
+	import LoadFromUrl from './lib/LoadFromUrl.svelte';
+	import ShareUrl from './lib/ShareUrl.svelte';
+
+	type MenuType = 'file' | 'examples';
 
 	let { projectId, project } = restoreProject();
 
@@ -40,6 +61,13 @@
 	let inputsPanel: InputsPanel | undefined;
 	let showDataPath = false;
 	let recentOpen = false;
+	let fileInput: HTMLInputElement;
+	let files: FileList;
+	let fileMenu: HTMLDivElement;
+	let examplesMenu: HTMLDivElement;
+	let menuOpen: MenuType | null = null;
+	let loadFromURLOpen = false;
+	let shareUrl: string | null = null;
 
 	$: pcLine = program?.sourceMap[state.registers.PC];
 	$: marLine = program?.sourceMap[state.registers.MAR];
@@ -65,11 +93,17 @@
 		program = e.detail.program;
 		setStatus('Successfully assembled program.');
 		reset();
+		saveProject(projectId, project);
 	}
 
 	function onError(e: { detail: { message: string } }) {
 		codeModified = false;
 		setStatus(e.detail.message, 'has-text-danger');
+	}
+
+	function onBreak(e: { detail: { line: number } }) {
+		setStatus(`Paused at breakpoint on line ${e.detail.line}.`);
+		editor?.scrollToPC();
 	}
 
 	function onHalt(e: { detail: { error?: string } }) {
@@ -113,6 +147,7 @@
 			await tick();
 			inputsPanel?.focus();
 		} else {
+			editor?.scrollToPC();
 			setStatus('Paused.');
 		}
 	}
@@ -245,6 +280,17 @@
 		outputs = [];
 	}
 
+	function downloadCode() {
+		const a = document.createElement('a');
+		a.style.display = 'none';
+		a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(project.code)}`;
+		a.download = 'code.mar';
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+		menuOpen = null;
+	}
+
 	function downloadBin() {
 		const array = new ArrayBuffer(sim.memory.length * 2);
 		const view = new DataView(array);
@@ -261,6 +307,7 @@
 		a.click();
 		window.URL.revokeObjectURL(url);
 		a.remove();
+		menuOpen = null;
 	}
 
 	function toggleDataPath() {
@@ -278,24 +325,239 @@
 		project = loadProject(e.detail.key);
 		projectId = e.detail.key;
 		recentOpen = false;
+		menuOpen = null;
 	}
+
+	function toggleTheme() {
+		$settings.invertTheme = !$settings.invertTheme;
+	}
+
+	async function uploaded() {
+		if (files && files.length > 0) {
+			const code = await files[0].text();
+			if (project.code !== '') {
+				saveProject(projectId, project);
+			}
+			projectId = '';
+			const np = newProject();
+			np.project.code = code;
+			projectId = np.projectId;
+			project = np.project;
+			menuOpen = null;
+		}
+	}
+
+	function clearProject() {
+		if (project.code !== '') {
+			saveProject(projectId, project);
+		}
+		projectId = '';
+		const np = newProject();
+		projectId = np.projectId;
+		project = np.project;
+		menuOpen = null;
+	}
+
+	function onWindowClick(e: Event) {
+		if (
+			(menuOpen === 'file' && !e.composedPath().includes(fileMenu)) ||
+			(menuOpen === 'examples' && !e.composedPath().includes(examplesMenu))
+		) {
+			menuOpen = null;
+		}
+	}
+
+	function toggleMenu(menu: MenuType) {
+		if (menuOpen === menu) {
+			menuOpen = null;
+		} else {
+			menuOpen = menu;
+		}
+	}
+
+	function shareProject() {
+		shareUrl = new URL(
+			import.meta.env.BASE_URL + `#project=${JSON.stringify(project)}`,
+			window.location.href,
+		).href;
+	}
+
+	async function loadFromURL(url: string) {
+		const response = await fetch(url);
+		const code = await response.text();
+		loadFromString(code);
+		menuOpen = null;
+		loadFromURLOpen = false;
+	}
+
+	function loadFromJSON(p: any) {
+		if (project.code !== '') {
+			saveProject(projectId, project);
+		}
+		projectId = '';
+		const np = newProject();
+		Object.assign(np.project, p);
+		projectId = np.projectId;
+		project = np.project;
+	}
+
+	function loadFromString(code: string) {
+		if (project.code !== '') {
+			saveProject(projectId, project);
+		}
+		projectId = '';
+		const np = newProject();
+		np.project.code = code;
+		projectId = np.projectId;
+		project = np.project;
+	}
+
+	function hashChange() {
+		const hash = window.location.hash;
+		if (hash.length === 0) {
+			return;
+		}
+
+		window.history.replaceState(
+			undefined,
+			'',
+			window.location.pathname + window.location.search,
+		);
+
+		if (hash.startsWith('#project=')) {
+			try {
+				const json = decodeURIComponent(hash.substring(9));
+				loadFromJSON(JSON.parse(json));
+				return;
+			} catch (e) {
+				console.error(e);
+			}
+		}
+
+		if (hash.startsWith('#code=')) {
+			try {
+				const code = decodeURIComponent(hash.substring(6));
+				loadFromString(code);
+				return;
+			} catch (e) {
+				console.error(e);
+			}
+		}
+
+		if (hash.startsWith('#url=')) {
+			try {
+				const url = decodeURIComponent(hash.substring(5));
+				loadFromURL(url);
+				return;
+			} catch (e) {
+				console.error(e);
+			}
+		}
+	}
+
+	onMount(hashChange);
 </script>
 
-<svelte:window on:beforeunload={() => saveProject(projectId, project)} />
+<svelte:window
+	on:beforeunload={() => saveProject(projectId, project)}
+	on:click={onWindowClick}
+	on:hashchange={hashChange}
+/>
 
 <main>
 	<nav class="navbar" aria-label="main navigation">
 		<div class="navbar-menu">
 			<div class="navbar-start">
-				<div class="navbar-item">
-					<button class="button" on:click={() => (recentOpen = true)} title="Recent files">
+				<div
+					class="navbar-item has-dropdown"
+					class:is-active={menuOpen === 'file'}
+					bind:this={fileMenu}
+				>
+					<!-- svelte-ignore a11y-missing-attribute -->
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
+					<a class="navbar-link" on:click={() => toggleMenu('file')}>
 						<span class="icon">
-							<Fa icon={faFolderOpen} />
+							<Fa icon={faFile} />
 						</span>
-					</button>
+						<span>File</span>
+					</a>
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-missing-attribute -->
+					<div class="navbar-dropdown">
+						<a class="navbar-item" on:click={clearProject}>
+							<span class="icon">
+								<Fa icon={faFile} />
+							</span>
+							<span>New</span>
+						</a>
+						<hr class="navbar-divider" />
+						<a class="navbar-item" on:click={() => (recentOpen = true)}>
+							<span class="icon">
+								<Fa icon={faFolderOpen} />
+							</span>
+							<span>Recent files</span>
+						</a>
+						<a class="navbar-item" on:click={() => fileInput.click()}>
+							<span class="icon">
+								<Fa icon={faUpload} />
+							</span>
+							<span>Upload file</span>
+						</a>
+						<a class="navbar-item" on:click={() => (loadFromURLOpen = true)}>
+							<span class="icon">
+								<Fa icon={faGlobe} />
+							</span>
+							<span>Load from URL</span>
+						</a>
+						<hr class="navbar-divider" />
+						<a class="navbar-item" on:click={downloadCode}>
+							<span class="icon">
+								<Fa icon={faDownload} />
+							</span>
+							<span>Download code</span>
+						</a>
+						<a class="navbar-item" on:click={shareProject}>
+							<span class="icon">
+								<Fa icon={faShareNodes} />
+							</span>
+							<span>Get share URL</span>
+						</a>
+						<hr class="navbar-divider" />
+						<a class="navbar-item" on:click={downloadBin}>
+							<span class="icon">
+								<Fa icon={faDatabase} />
+							</span>
+							<span>Download binary memory dump</span>
+						</a>
+					</div>
 				</div>
-				<div class="navbar-item">
-					<button class="button" on:click={downloadBin}>Download Binary</button>
+				<div
+					class="navbar-item has-dropdown"
+					class:is-active={menuOpen === 'examples'}
+					bind:this={examplesMenu}
+				>
+					<!-- svelte-ignore a11y-missing-attribute -->
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
+					<a class="navbar-link" on:click={() => toggleMenu('examples')}>
+						<span class="icon">
+							<Fa icon={faLightbulb} />
+						</span>
+						<span>Examples</span>
+					</a>
+					<div class="navbar-dropdown">
+						<!-- svelte-ignore a11y-no-static-element-interactions -->
+						{#each examples as example}
+							<!-- svelte-ignore a11y-click-events-have-key-events -->
+							<!-- svelte-ignore a11y-missing-attribute -->
+							<a on:click={() => loadFromURL(example.url)} class="navbar-item">
+								<span class="icon"><Fa icon={example.icon} /></span>
+								<span>{example.name}</span>
+							</a>
+						{/each}
+					</div>
 				</div>
 			</div>
 
@@ -311,8 +573,18 @@
 							<span class="icon">
 								<Fa icon={faMicrochip} />
 							</span>
-							<span>Data Path</span></button
+							<span>Data Path</span>
+						</button>
+
+						<button
+							class="button"
+							on:click={toggleTheme}
+							title={`Switch theme`}
 						>
+							<span class="icon">
+								<Fa icon={faPalette} />
+							</span>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -369,8 +641,7 @@
 								on:step={onStep}
 								on:microStep={onMicroStep}
 								on:action={onAction}
-								on:break={(e) =>
-									setStatus(`Paused at breakpoint on line ${e.detail.line}.`)}
+								on:break={onBreak}
 								on:halt={onHalt}
 							></Simulator>
 							<div slot="status-bar">
@@ -419,6 +690,20 @@
 		currentKey={projectId}
 		on:cancel={() => (recentOpen = false)}
 		on:open={openProject}
+	/>
+	<LoadFromUrl
+		active={loadFromURLOpen}
+		on:cancel={() => (loadFromURLOpen = false)}
+		on:loadFromUrl={(e) => loadFromURL(e.detail.url)}
+	/>
+	<ShareUrl {shareUrl} />
+	<input
+		class="is-hidden"
+		type="file"
+		bind:this={fileInput}
+		bind:files
+		on:change={uploaded}
+		accept=".mar"
 	/>
 </main>
 

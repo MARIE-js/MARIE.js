@@ -54,7 +54,11 @@
 	});
 </script>
 
-<div class="split" class:horizontal={direction === 'horizontal'}>
+<div
+	class="split"
+	class:horizontal={direction === 'horizontal'}
+	class:vertical={direction === 'vertical'}
+>
 	<div
 		bind:this={panelA}
 		class="split-panel"
@@ -83,6 +87,10 @@
 
 	.split.horizontal {
 		flex-direction: row;
+	}
+
+	.split.vertical .split-panel {
+		height: 100%;
 	}
 
 	.no-splitter {

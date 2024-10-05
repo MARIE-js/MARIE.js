@@ -1159,6 +1159,7 @@
 				id="step-5-circle"
 				class="step"
 				class:active={step === 5}
+				class:hover={hover == 'step'}
 				cx="9.2604"
 				cy="63.765"
 				r="1.1906"

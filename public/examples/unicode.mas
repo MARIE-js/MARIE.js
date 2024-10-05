@@ -1,0 +1,63 @@
+/ Unicode (UTF-16BE) Demo
+/ by the MARIE.js Team
+/ Copyright (C) 2020. Licensed under the MIT License
+
+LOOP, Load PTR
+/ output word
+LoadI PTR
+Output
+
+/ increment pointer
+Load PTR
+Add ONE
+Store PTR
+
+/ increment counter
+Load CTR
+Add ONE
+Store CTR
+
+/ check whether all words have been processed and halt if so
+Subt WORDS
+Skipcond 400
+Jump LOOP
+Halt
+
+ONE, DEC 1
+CTR, DEC 0
+WORDS, DEC 19
+
+/ initialize pointer to words
+PTR, ADR S
+
+/ ouput data
+/ "Hello World!"
+S, HEX 48
+HEX 45 
+HEX 4C
+HEX 4C
+HEX 4F
+HEX 20
+HEX 57
+HEX 4F
+HEX 52
+HEX 4C
+HEX 44
+HEX 21
+
+/ Smiley (outside of the Basic Multilingual Plane)
+HEX D83D
+HEX DE42
+
+/ Byte Order Mark, big-endian (ignored)
+HEX FEFF
+
+/ Byte Order Mark, little-endian (ignored)
+HEX FFFE
+
+/ Inverted Smiley (outside of the BMP)
+HEX D83D
+HEX DE43
+
+/ Copyright Sign (inside the BMP)
+HEX A9
