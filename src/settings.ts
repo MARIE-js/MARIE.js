@@ -64,3 +64,14 @@ export const darkMode = derived(
 );
 
 export type InputOutputMode = 'hex' | 'dec' | 'oct' | 'bin' | 'unicode';
+
+export function constructURL(path: string) {
+	let baseUrl = import.meta.env.BASE_URL;
+	if (baseUrl.length > 0 && !baseUrl.startsWith('/')) {
+		baseUrl = '/' + baseUrl;
+	}
+	if (!baseUrl.endsWith('/')) {
+		baseUrl += '/';
+	}
+	return new URL(`${baseUrl}${path}`, window.location.href).href;
+}

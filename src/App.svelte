@@ -9,7 +9,7 @@
 		type State,
 		parseIntLit,
 	} from './marie';
-	import { settings } from './settings';
+	import { constructURL, settings } from './settings';
 	import RtlLog from './lib/RTLLog.svelte';
 	import CollapsiblePanel from './lib/CollapsiblePanel.svelte';
 	import OutputLog from './lib/OutputLog.svelte';
@@ -376,10 +376,7 @@
 	}
 
 	function shareProject() {
-		shareUrl = new URL(
-			import.meta.env.BASE_URL + `#project=${JSON.stringify(project)}`,
-			window.location.href,
-		).href;
+		shareUrl = constructURL(`#project=${JSON.stringify(project)}`);
 	}
 
 	async function loadFromURL(url: string) {

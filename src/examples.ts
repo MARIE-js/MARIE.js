@@ -5,12 +5,10 @@ import {
 	faSort,
 	faTimes,
 } from '@fortawesome/free-solid-svg-icons';
+import { constructURL } from './settings';
 
 function getUrl(example: string) {
-	return new URL(
-		import.meta.env.BASE_URL + 'examples/' + example + '.mas',
-		window.location.href,
-	).href;
+	return constructURL(`examples/${example}.mas`);
 }
 
 export default [
