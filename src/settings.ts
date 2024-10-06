@@ -11,6 +11,8 @@ const mediaQueryStore = (query: string) => {
 
 const browserDarkMode = mediaQueryStore('(prefers-color-scheme: dark)');
 
+export const isMobile = mediaQueryStore('(max-width: 768px)');
+
 export interface Settings {
 	invertTheme: boolean;
 	leftPanel: number;

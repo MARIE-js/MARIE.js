@@ -9,7 +9,7 @@
 		type State,
 		parseIntLit,
 	} from './marie';
-	import { constructURL, settings } from './settings';
+	import { constructURL, settings, isMobile } from './settings';
 	import RtlLog from './lib/RTLLog.svelte';
 	import CollapsiblePanel from './lib/CollapsiblePanel.svelte';
 	import OutputLog from './lib/OutputLog.svelte';
@@ -68,6 +68,7 @@
 	let menuOpen: MenuType | null = null;
 	let loadFromURLOpen = false;
 	let shareUrl: string | null = null;
+	let menuActive = false;
 
 	$: pcLine = program?.sourceMap[state.registers.PC];
 	$: marLine = program?.sourceMap[state.registers.MAR];
@@ -463,7 +464,23 @@
 
 <main>
 	<nav class="navbar" aria-label="main navigation">
-		<div class="navbar-menu">
+		<div class="navbar-brand">
+			<!-- svelte-ignore a11y-missing-attribute -->
+			<a
+				role="button"
+				class="navbar-burger"
+				class:is-active={menuActive}
+				aria-label="menu"
+				aria-expanded="false"
+				on:click={() => (menuActive = !menuActive)}
+			>
+				<span aria-hidden="true"></span>
+				<span aria-hidden="true"></span>
+				<span aria-hidden="true"></span>
+				<span aria-hidden="true"></span>
+			</a>
+		</div>
+		<div class="navbar-menu" class:is-active={menuActive}>
 			<div class="navbar-start">
 				<div
 					class="navbar-item has-dropdown"
@@ -588,7 +605,10 @@
 		</div>
 	</nav>
 	<div class="panels">
-		<SplitPanel direction="horizontal" bind:split={$settings.leftPanel}>
+		<SplitPanel
+			direction={$isMobile ? 'vertical' : 'horizontal'}
+			bind:split={$settings.leftPanel}
+		>
 			<div class="panel" slot="panelA">
 				<SplitPanel direction="vertical" bind:split={$settings.topPanel}>
 					<div slot="panelA" class="panel">

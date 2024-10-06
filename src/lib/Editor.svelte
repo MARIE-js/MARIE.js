@@ -12,8 +12,7 @@
 		StateField,
 		StateEffect,
 	} from '@codemirror/state';
-	import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
-
+	import { syntaxHighlighting } from '@codemirror/language';
 	import { onMount } from 'svelte';
 	import { basicSetup } from 'codemirror';
 	import { darkMode } from '../settings';
