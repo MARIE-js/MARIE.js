@@ -5,6 +5,7 @@
 		ViewUpdate,
 		gutter,
 		GutterMarker,
+		keymap,
 	} from '@codemirror/view';
 	import {
 		EditorState,
@@ -12,7 +13,8 @@
 		StateField,
 		StateEffect,
 	} from '@codemirror/state';
-	import { syntaxHighlighting } from '@codemirror/language';
+	import { syntaxHighlighting, indentUnit } from '@codemirror/language';
+	import { indentLess, insertTab } from '@codemirror/commands';
 	import { onMount } from 'svelte';
 	import { basicSetup } from 'codemirror';
 	import { darkMode } from '../settings';
@@ -86,6 +88,19 @@
 				extensions: [
 					breakpointGutter,
 					basicSetup,
+					indentUnit.of('\t'),
+					keymap.of([
+						{
+							key: 'Tab',
+							preventDefault: true,
+							run: insertTab,
+						},
+						{
+							key: 'Shift-Tab',
+							preventDefault: true,
+							run: indentLess,
+						},
+					]),
 					syntaxHighlighting(styles),
 					marieLanguage,
 					marieLanguage.data.of({

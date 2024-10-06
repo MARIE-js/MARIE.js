@@ -26,6 +26,7 @@
 		"vitest": "^2.1.2"
 	},
 	"dependencies": {
+		"@codemirror/commands": "^6.6.2",
 		"@codemirror/language": "^6.10.3",
 		"@codemirror/legacy-modes": "^6.4.1",
 		"@fortawesome/free-solid-svg-icons": "^6.6.0",
