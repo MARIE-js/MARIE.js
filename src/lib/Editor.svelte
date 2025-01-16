@@ -1,3 +1,23 @@
+<script lang="ts" module>
+	class BreakpointMarker extends GutterMarker {
+		toDOM() {
+			const span = document.createElement('span');
+			span.title = 'Remove breakpoint';
+			span.textContent = '⏺';
+			return span;
+		}
+	}
+	class BreakpointHoverMarker extends GutterMarker {
+		elementClass = 'cm-marie-hover-breakpoint';
+		toDOM() {
+			const span = document.createElement('span');
+			span.title = 'Set breakpoint';
+			span.textContent = '⏺';
+			return span;
+		}
+	}
+</script>
+
 <script lang="ts">
 	import {
 		EditorView,
@@ -267,23 +287,8 @@
 
 	// Breakpoints
 	const updateBreakpointsEffect = StateEffect.define();
-	const breakpointMarker = new (class extends GutterMarker {
-		toDOM() {
-			const span = document.createElement('span');
-			span.title = 'Remove breakpoint';
-			span.textContent = '⏺';
-			return span;
-		}
-	})();
-	const breakpointHoverMarker = new (class extends GutterMarker {
-		elementClass = 'cm-marie-hover-breakpoint';
-		toDOM() {
-			const span = document.createElement('span');
-			span.title = 'Set breakpoint';
-			span.textContent = '⏺';
-			return span;
-		}
-	})();
+	const breakpointMarker = new BreakpointMarker();
+	const breakpointHoverMarker = new BreakpointHoverMarker();
 	let hoverBreakpointLine = 0;
 	function updateBreakpoints(
 		view: EditorView | undefined,
@@ -384,7 +389,7 @@
 	}
 </script>
 
-<div class="editor" class:is-dark={$darkMode} bind:this={div} />
+<div class="editor" class:is-dark={$darkMode} bind:this={div}></div>
 
 <style>
 	.editor {
