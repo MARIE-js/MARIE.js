@@ -81,7 +81,7 @@ export function loadProject(projectId: string) {
 }
 
 export function saveProject(projectId: string, project: Project) {
-	if (!projectId || !project) {
+	if (!projectId || !project || project.code.trim().length === 0) {
 		return;
 	}
 	const projects: { [key: string]: any } = getProjects();
