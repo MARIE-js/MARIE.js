@@ -43,6 +43,7 @@
 	import examples from './examples';
 	import LoadFromUrl from './lib/LoadFromUrl.svelte';
 	import ShareUrl from './lib/ShareUrl.svelte';
+	import Spinner from './lib/Spinner.svelte';
 
 	type MenuType = 'file' | 'examples';
 
@@ -69,6 +70,7 @@
 	let loadFromURLOpen = false;
 	let shareUrl: string | null = null;
 	let menuActive = false;
+	let busyState = 0;
 
 	$: pcLine = program?.sourceMap[state.registers.PC];
 	$: marLine = program?.sourceMap[state.registers.MAR];
@@ -79,6 +81,8 @@
 
 	const autoSave = debounce(saveProject, 5000);
 	$: autoSave(projectId, project);
+
+	$: isLoading = busyState > 0;
 
 	function setStatus(msg: string, cls?: string) {
 		statusText = { cls, msg };
@@ -381,17 +385,17 @@
 	}
 
 	async function loadFromURL(url: string) {
+		busyState++;
 		const response = await fetch(url);
 		const code = await response.text();
 		loadFromString(code);
+		busyState--;
 		menuOpen = null;
 		loadFromURLOpen = false;
 	}
 
 	function loadFromJSON(p: any) {
-		if (project.code !== '') {
-			saveProject(projectId, project);
-		}
+		saveProject(projectId, project);
 		projectId = '';
 		const np = newProject();
 		Object.assign(np.project, p);
@@ -400,9 +404,7 @@
 	}
 
 	function loadFromString(code: string) {
-		if (project.code !== '') {
-			saveProject(projectId, project);
-		}
+		saveProject(projectId, project);
 		projectId = '';
 		const np = newProject();
 		np.project.code = code;
@@ -724,6 +726,7 @@
 		on:change={uploaded}
 		accept=".mar"
 	/>
+	<Spinner active={isLoading} />
 </main>
 
 <style>
