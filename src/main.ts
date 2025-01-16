@@ -2,8 +2,9 @@ import 'bulma/css/bulma.css';
 import './app.css';
 import App from './App.svelte';
 import { darkMode } from './settings';
+import { mount } from 'svelte';
 
-const app = new App({
+const app = mount(App, {
 	target: document.getElementById('app')!,
 });
 
