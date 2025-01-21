@@ -1,7 +1,7 @@
 # MARIE.js
 
 MARIE.js is an implementation of a simulator for a 'Machine Architecture that is Really Intuitive and Easy'
-from [The Essentials of Computer Organization and Architecture](https://books.google.com.au/books/about/The_Essentials_of_Computer_Organization.html?id=3kQoAwAAQBAJ&redir_esc=y) (Linda Null, Julia Lobur) in JavaScript.
+from [The Essentials of Computer Organization and Architecture](https://books.google.com.au/books/about/The_Essentials_of_Computer_Organization.html?id=3kQoAwAAQBAJ&redir_esc=y) (Linda Null, Julia Lobur) in TypeScript.
 
 **[Try the simulator](https://marie.js.org/)**
 
