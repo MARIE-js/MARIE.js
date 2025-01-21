@@ -44,6 +44,7 @@
 	import LoadFromUrl from './lib/LoadFromUrl.svelte';
 	import ShareUrl from './lib/ShareUrl.svelte';
 	import Spinner from './lib/Spinner.svelte';
+	import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 	type MenuType = 'file' | 'examples';
 
@@ -603,6 +604,17 @@
 								<Fa icon={faPalette} />
 							</span>
 						</button>
+
+						<a
+							href="https://github.com/MARIE-js/MARIE.js"
+							class="button"
+							title="View on GitHub"
+							target="_blank"
+						>
+							<span class="icon">
+								<Fa icon={faGithub} />
+							</span>
+						</a>
 					</div>
 				</div>
 			</div>
