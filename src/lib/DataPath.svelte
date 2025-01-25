@@ -285,7 +285,7 @@
 			/>
 			<path
 				id="in-ac"
-				class="bus-transfer reverse"
+				class="bus-transfer"
 				class:active={isBusTransferActive('IN', 'AC', read, write)}
 				d="m119.06 43.259v33.47l18.521-1e-6v-33.47"
 			/>
