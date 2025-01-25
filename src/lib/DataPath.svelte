@@ -1456,7 +1456,7 @@
 		background-color: var(--bulma-background);
 		border: solid 1px var(--bulma-border);
 		border-radius: var(--bulma-radius);
-        pointer-events: none;
+		pointer-events: none;
 	}
 
 	svg {
