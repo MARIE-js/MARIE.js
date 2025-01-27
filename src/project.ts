@@ -91,3 +91,19 @@ export function saveProject(projectId: string, project: Project) {
 		.slice(0, 10);
 	localStorage.setItem('marie.projects', JSON.stringify(result));
 }
+
+export function migrateProject() {
+	const code = (localStorage.getItem('marie-program') ?? '').trim();
+	if (code.length === 0) {
+		return;
+	}
+
+	// Migrate old project (timestamp will be now since we didn't previously keep track)
+	const projectId = crypto.randomUUID();
+	saveProject(projectId, {
+		...defaultProject,
+		code,
+	});
+
+	localStorage.removeItem('marie-program');
+}

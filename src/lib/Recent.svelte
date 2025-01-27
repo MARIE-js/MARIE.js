@@ -10,11 +10,10 @@
 
 	const dispatch = createEventDispatcher();
 
-	let projects: { id: string; code: string; timestamp: string }[] = [];
 	let currentIndex = 0;
 
-	onMount(() => {
-		projects = Object.entries(getProjects())
+	function projectsList() {
+		return Object.entries(getProjects())
 			.filter(([k, _v]) => k !== currentKey)
 			.reduce<
 				{ id: string; code: string; timestamp: string; _timestamp: number }[]
@@ -31,7 +30,9 @@
 				[],
 			)
 			.sort((a, b) => b._timestamp - a._timestamp);
-	});
+	}
+
+	$: projects = active ? projectsList() : [];
 
 	function syntaxHighlight(code: string) {
 		const tree = marieLanguage.parser.parse(code);

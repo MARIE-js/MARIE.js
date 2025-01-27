@@ -23,6 +23,7 @@
 		restoreProject,
 		loadProject,
 		newProject,
+		migrateProject,
 	} from './project';
 	import { debounce } from 'lodash';
 	import DataPath from './lib/DataPath.svelte';
@@ -468,6 +469,7 @@
 	}
 
 	onMount(hashChange);
+	onMount(migrateProject);
 </script>
 
 <svelte:window
