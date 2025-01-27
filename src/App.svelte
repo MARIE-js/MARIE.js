@@ -388,9 +388,14 @@
 
 	async function loadFromURL(url: string) {
 		busyState++;
-		const response = await fetch(url);
-		const code = await response.text();
-		loadFromString(code);
+		try {
+			const response = await fetch(url);
+			const code = await response.text();
+			loadFromString(code);
+		} catch (e) {
+			console.error(e);
+			setStatus(`Error: ${e}`, 'has-text-danger');
+		}
 		busyState--;
 		menuOpen = null;
 		loadFromURLOpen = false;
