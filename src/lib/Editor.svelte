@@ -35,6 +35,7 @@
 	} from '@codemirror/state';
 	import { syntaxHighlighting, indentUnit } from '@codemirror/language';
 	import { indentLess, insertTab } from '@codemirror/commands';
+	import { acceptCompletion } from '@codemirror/autocomplete';
 	import { onMount } from 'svelte';
 	import { basicSetup } from 'codemirror';
 	import { darkMode } from '../settings';
@@ -110,6 +111,10 @@
 					basicSetup,
 					indentUnit.of('\t'),
 					keymap.of([
+						{
+							key: 'Tab',
+							run: acceptCompletion,
+						},
 						{
 							key: 'Tab',
 							preventDefault: true,
