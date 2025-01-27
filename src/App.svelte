@@ -40,7 +40,7 @@
 		faShareNodes,
 	} from '@fortawesome/free-solid-svg-icons';
 	import Recent from './lib/Recent.svelte';
-	import examples from './examples';
+	import examples, { getExampleURL } from './examples';
 	import LoadFromUrl from './lib/LoadFromUrl.svelte';
 	import ShareUrl from './lib/ShareUrl.svelte';
 	import Spinner from './lib/Spinner.svelte';
@@ -414,6 +414,17 @@
 	}
 
 	function hashChange() {
+		const example = window.location.search.substring(1);
+		if (example.length > 0) {
+			try {
+				const url = decodeURIComponent(example);
+				loadFromURL(getExampleURL(url));
+				return;
+			} catch (e) {
+				console.error(e);
+			}
+		}
+
 		const hash = window.location.hash;
 		if (hash.length === 0) {
 			return;
