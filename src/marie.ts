@@ -187,12 +187,21 @@ export type InputCallback = () =>
 	| undefined
 	| Promise<number | null | undefined>;
 
+/** A MARIE instruction */
+export interface Instruction {
+	/** The name of the instruction */
+	name: string;
+	/** The opcode of the instruction */
+	opcode: number;
+	/** Whether the instruction accepts an operand */
+	operand: boolean;
+	/** A description of the instruction */
+	description: string;
+}
+
 type MicroStep = (sim: MarieSim) => Action | null;
 
-interface Instruction {
-	name: string;
-	opcode: number;
-	operand: boolean;
+interface InstructionWithMicroSteps extends Instruction {
 	microSteps: MicroStep[];
 }
 
@@ -257,7 +266,7 @@ export class MarieSim {
 	})[];
 	private _inputInterrupt: InputInterruptState;
 	private _microProgramCounter: number;
-	private _decoded?: Instruction;
+	private _decoded?: InstructionWithMicroSteps;
 	private _comparisonResult: boolean;
 	private _inputCallback: InputCallback;
 
@@ -733,7 +742,7 @@ export class MarieSim {
 	}
 
 	/** The MARIE instruction set */
-	private static instructionSet: Instruction[] = [
+	private static instructionSet: InstructionWithMicroSteps[] = [
 		{
 			name: 'Add',
 			opcode: 0x3,
@@ -743,6 +752,7 @@ export class MarieSim {
 				(sim) => sim.readMemory(),
 				(sim) => sim.arithmeticOperation('ADD'),
 			],
+			description: 'Add value at address X to the AC.\n\nAC ← AC + M[X]',
 		},
 		{
 			name: 'Subt',
@@ -753,6 +763,8 @@ export class MarieSim {
 				(sim) => sim.readMemory(),
 				(sim) => sim.arithmeticOperation('SUB'),
 			],
+			description:
+				'Subtract value at address X from the AC.\n\n AC ← AC - M[X]',
 		},
 		{
 			name: 'AddI',
@@ -765,12 +777,15 @@ export class MarieSim {
 				(sim) => sim.readMemory(),
 				(sim) => sim.arithmeticOperation('ADD'),
 			],
+			description:
+				'Use the contents at address X as the address of the value to add to the AC.\n\nAC ← AC + M[M[X]]',
 		},
 		{
 			name: 'Clear',
 			opcode: 0xa,
 			operand: false,
 			microSteps: [(sim) => sim.arithmeticOperation('CLEAR')],
+			description: 'Set the AC to 0.\n\nAC ← 0',
 		},
 		{
 			name: 'Load',
@@ -781,6 +796,7 @@ export class MarieSim {
 				(sim) => sim.readMemory(),
 				(sim) => sim.registerTransfer('AC', 'MBR'),
 			],
+			description: 'Load the value at the address X into the AC.\n\nAC ← M[X]',
 		},
 		{
 			name: 'LoadI',
@@ -793,6 +809,8 @@ export class MarieSim {
 				(sim) => sim.readMemory(),
 				(sim) => sim.registerTransfer('AC', 'MBR'),
 			],
+			description:
+				'Use the contents at address X as the address of the value to load into the AC.\n\nAC ← M[M[X]]',
 		},
 		{
 			name: 'Store',
@@ -803,6 +821,8 @@ export class MarieSim {
 				(sim) => sim.registerTransfer('MBR', 'AC'),
 				(sim) => sim.writeMemory(),
 			],
+			description:
+				'Store the value of the AC into memory at address X.\n\nM[X] ← AC',
 		},
 		{
 			name: 'StoreI',
@@ -815,6 +835,8 @@ export class MarieSim {
 				(sim) => sim.registerTransfer('MBR', 'AC'),
 				(sim) => sim.writeMemory(),
 			],
+			description:
+				'Use the contents at address X as the memory address at which to store the value of the AC.\n\nM[M[X]] ← AC',
 		},
 		{
 			name: 'Input',
@@ -826,6 +848,7 @@ export class MarieSim {
 					return null;
 				},
 			],
+			description: 'Read the next value from user input.\n\nAC ← IN',
 		},
 		{
 			name: 'Output',
@@ -835,12 +858,14 @@ export class MarieSim {
 				(sim) => sim.registerTransfer('OUT', 'AC'),
 				(sim) => ({ type: 'output', value: sim.registers.OUT }),
 			],
+			description: 'Output the value in the AC.\n\nOUT ← AC',
 		},
 		{
 			name: 'Jump',
 			opcode: 0x9,
 			operand: true,
 			microSteps: [(sim) => sim.registerTransfer('PC', 'IR')],
+			description: 'Jump to address X.\n\nPC ← X',
 		},
 		{
 			name: 'SkipCond',
@@ -871,6 +896,8 @@ export class MarieSim {
 				},
 				(sim) => (sim._comparisonResult ? sim.incrementPC() : null),
 			],
+			description:
+				'Skip the next instruction if the condition indicated by X holds:\n- 000: Skip if AC < 0\n- 400: Skip if AC = 0\n- 800: Skip if AC > 0',
 		},
 		{
 			name: 'JnS',
@@ -883,6 +910,8 @@ export class MarieSim {
 				(sim) => sim.registerTransfer('PC', 'MAR'),
 				(sim) => sim.incrementPC(),
 			],
+			description:
+				'Store the address of the next instruction into memory at address X, then jump to X + 1.\n\nM[X] ← PC\nPC ← X + 1',
 		},
 		{
 			name: 'JumpI',
@@ -893,6 +922,8 @@ export class MarieSim {
 				(sim) => sim.readMemory(),
 				(sim) => sim.registerTransfer('PC', 'MBR'),
 			],
+			description:
+				'Use the contents at address X as the memory address to jump to.\n\nPC ← M[X]',
 		},
 		{
 			name: 'Halt',
@@ -907,16 +938,19 @@ export class MarieSim {
 					};
 				},
 			],
+			description: 'Stop execution of the program.',
 		},
 	];
 
 	/** A list of the supported instructions. */
-	static instructions: { name: string; opcode: number; operand: boolean }[] =
-		MarieSim.instructionSet.map((instruction) => ({
+	static instructions: Instruction[] = MarieSim.instructionSet.map(
+		(instruction) => ({
 			name: instruction.name,
 			opcode: instruction.opcode,
 			operand: instruction.operand,
-		}));
+			description: instruction.description,
+		}),
+	);
 
 	/** Maps operation name to opcode and whether it needs an operand. */
 	static instructionMap: {
@@ -934,7 +968,7 @@ export class MarieSim {
 
 	/** Maps opcode to instruction */
 	private static opDecoder: {
-		[op: number]: Instruction | undefined;
+		[op: number]: InstructionWithMicroSteps | undefined;
 	} = MarieSim.instructionSet.reduce(
 		(acc, instruction) => ({
 			...acc,
@@ -1076,9 +1110,9 @@ export function assemble(code: string): AssemblyResult {
 		}
 
 		parsed.push({
-			label: label,
-			operator: operator,
-			operand: operand,
+			label,
+			operator,
+			operand,
 			line: i + 1,
 		});
 

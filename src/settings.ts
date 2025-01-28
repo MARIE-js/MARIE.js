@@ -18,6 +18,7 @@ export interface Settings {
 	leftPanel: number;
 	topPanel: number;
 	editorPanel: number;
+	instructionPanel: number;
 	outputLogOpen: boolean;
 	rtlLogOpen: boolean;
 	watchListOpen: boolean;
@@ -34,6 +35,7 @@ export const settings = writable<Settings>(
 			leftPanel: 70,
 			topPanel: 70,
 			editorPanel: 50,
+			instructionPanel: 70,
 			outputLogOpen: true,
 			rtlLogOpen: false,
 			watchListOpen: false,

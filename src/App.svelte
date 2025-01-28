@@ -39,6 +39,7 @@
 		faLightbulb,
 		faUpload,
 		faShareNodes,
+		faQuestionCircle,
 	} from '@fortawesome/free-solid-svg-icons';
 	import Recent from './lib/Recent.svelte';
 	import examples, { getExampleURL } from './examples';
@@ -46,6 +47,7 @@
 	import ShareUrl from './lib/ShareUrl.svelte';
 	import Spinner from './lib/Spinner.svelte';
 	import { faGithub } from '@fortawesome/free-brands-svg-icons';
+	import InstructionSet from './lib/InstructionSet.svelte';
 
 	type MenuType = 'file' | 'examples';
 
@@ -72,6 +74,7 @@
 	let loadFromURLOpen = false;
 	let shareUrl: string | null = null;
 	let menuActive = false;
+	let showInstructions = false;
 	let busyState = 0;
 
 	$: pcLine = program?.sourceMap[state.registers.PC];
@@ -322,6 +325,10 @@
 		if (showDataPath) {
 			$settings.rtlLogOpen = true;
 		}
+	}
+
+	function toggleInstructionSet() {
+		showInstructions = !showInstructions;
 	}
 
 	function openProject(e: { detail: { key: string } }) {
@@ -615,6 +622,18 @@
 
 						<button
 							class="button"
+							class:is-info={showInstructions}
+							on:click={toggleInstructionSet}
+							title={`Click to ${showInstructions ? 'hide' : 'show'} instruction set`}
+						>
+							<span class="icon">
+								<Fa icon={faQuestionCircle} />
+							</span>
+							<span>Instruction Set</span>
+						</button>
+
+						<button
+							class="button"
 							on:click={toggleTheme}
 							title={`Switch theme`}
 						>
@@ -644,63 +663,74 @@
 			bind:split={$settings.leftPanel}
 		>
 			<div class="panel" slot="panelA">
-				<SplitPanel direction="vertical" bind:split={$settings.topPanel}>
+				<SplitPanel
+					direction="horizontal"
+					bind:split={$settings.instructionPanel}
+					showPanels={showInstructions ? 'all' : 'a'}
+				>
 					<div slot="panelA" class="panel">
-						<SplitPanel
-							direction="vertical"
-							bind:split={$settings.editorPanel}
-							showPanels={showDataPath ? 'all' : 'a'}
-						>
-							<div class="panel" slot="panelA">
-								<Editor
-									bind:this={editor}
-									bind:text={project.code}
-									bind:modified={codeModified}
-									bind:breakpoints={project.breakpoints}
-									{pcLine}
-									{marLine}
-									{hoverLine}
-								/>
+						<SplitPanel direction="vertical" bind:split={$settings.topPanel}>
+							<div slot="panelA" class="panel">
+								<SplitPanel
+									direction="vertical"
+									bind:split={$settings.editorPanel}
+									showPanels={showDataPath ? 'all' : 'a'}
+								>
+									<div class="panel" slot="panelA">
+										<Editor
+											bind:this={editor}
+											bind:text={project.code}
+											bind:modified={codeModified}
+											bind:breakpoints={project.breakpoints}
+											{pcLine}
+											{marLine}
+											{hoverLine}
+										/>
+									</div>
+									<div class="panel" slot="panelB">
+										<DataPath {state} {log} />
+									</div>
+								</SplitPanel>
 							</div>
-							<div class="panel" slot="panelB">
-								<DataPath {state} {log} />
+							<div slot="panelB" class="panel machine-state">
+								<MachineState
+									{state}
+									{log}
+									on:edit-memory={(e) =>
+										simulator?.editMemory(e.detail.address, e.detail.value)}
+									on:edit-register={(e) =>
+										simulator?.editRegister(e.detail.register, e.detail.value)}
+								>
+									<Simulator
+										slot="header"
+										bind:this={simulator}
+										bind:speed={$settings.speed}
+										{sim}
+										breakpoints={project.breakpoints}
+										code={project.code}
+										{codeModified}
+										on:assembled={onAssembled}
+										on:error={onError}
+										on:output={onOutput}
+										on:update={onUpdate}
+										on:pause={onPause}
+										on:step={onStep}
+										on:microStep={onMicroStep}
+										on:action={onAction}
+										on:break={onBreak}
+										on:halt={onHalt}
+									></Simulator>
+									<div slot="status-bar">
+										{#if statusText}
+											<span class={statusText.cls}>{statusText.msg}</span>
+										{/if}
+									</div>
+								</MachineState>
 							</div>
 						</SplitPanel>
 					</div>
-					<div slot="panelB" class="panel machine-state">
-						<MachineState
-							{state}
-							{log}
-							on:edit-memory={(e) =>
-								simulator?.editMemory(e.detail.address, e.detail.value)}
-							on:edit-register={(e) =>
-								simulator?.editRegister(e.detail.register, e.detail.value)}
-						>
-							<Simulator
-								slot="header"
-								bind:this={simulator}
-								bind:speed={$settings.speed}
-								{sim}
-								breakpoints={project.breakpoints}
-								code={project.code}
-								{codeModified}
-								on:assembled={onAssembled}
-								on:error={onError}
-								on:output={onOutput}
-								on:update={onUpdate}
-								on:pause={onPause}
-								on:step={onStep}
-								on:microStep={onMicroStep}
-								on:action={onAction}
-								on:break={onBreak}
-								on:halt={onHalt}
-							></Simulator>
-							<div slot="status-bar">
-								{#if statusText}
-									<span class={statusText.cls}>{statusText.msg}</span>
-								{/if}
-							</div>
-						</MachineState>
+					<div slot="panelB" class="panel">
+						<InstructionSet />
 					</div>
 				</SplitPanel>
 			</div>
