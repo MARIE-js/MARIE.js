@@ -105,17 +105,21 @@ export function getCompletions(
 			.sliceString(previous.from, previous.to)
 			.trim()
 			.toLowerCase();
-		const options: { label: string }[] = [];
+		const options: { label: string; info: string }[] = [];
 		if (MarieSim.instructionMap[operator]?.operand) {
 			const cursor = nodeBefore.cursor();
 			while (cursor.parent());
 			cursor.iterate((node) => {
 				if (node.name === 'labelName') {
-					const label = context.state.doc
-						.sliceString(cursor.from, cursor.to)
-						.trim()
-						.replace(',', '');
-					options.push({ label });
+					const line = context.state.doc.lineAt(cursor.to).text;
+					const commaPos = line.indexOf(',');
+					const commentPos = line.indexOf('/');
+					const label = line.substring(0, commaPos).trim();
+					const data = line
+						.substring(commaPos + 1, commentPos === -1 ? undefined : commentPos)
+						.trim();
+					const info = `Address of '${data}'`;
+					options.push({ label, info });
 				}
 			});
 			return {
@@ -139,13 +143,21 @@ export function getCompletions(
 			break;
 		}
 	}
-	const options = [{ label: 'DEC' }, { label: 'HEX' }, { label: 'OCT' }];
+	const options = [
+		{ label: 'DEC', info: 'DEC X\n\nSigned or unsigned decimal value X.' },
+		{ label: 'HEX', info: 'HEX X\n\nHexadecimal value X.' },
+		{ label: 'OCT', info: 'OCT X\n\nOctal value X.' },
+	];
 	if (!hasOrigin) {
-		options.push({ label: 'ORG' });
+		options.push({
+			label: 'ORG',
+			info: 'ORG X\n\nStarting address for program.',
+		});
 	}
 	options.push(
 		...MarieSim.instructions.map((instruction) => ({
 			label: instruction.name,
+			info: `${instruction.name}${instruction.operand ? ' X' : ''}\n\n${instruction.description}`,
 		})),
 	);
 	return {
