@@ -1,0 +1,29 @@
+:root {
+	--bulma-body-overflow-x: auto;
+	--bulma-body-overflow-y: auto;
+	--marie-highlight-pc: hsla(123, 100%, 70%, 0.2);
+	--marie-highlight-mar: hsla(49, 100%, 70%, 0.2);
+	--marie-highlight-hover: hsla(223, 14%, 50%, 0.1);
+	--marie-highlight-pc-mar: linear-gradient(
+		var(--marie-highlight-pc) 0%,
+		var(--marie-highlight-pc) 50%,
+		var(--marie-highlight-mar) 50%,
+		var(--marie-highlight-mar) 100%
+	);
+
+	--marie-syntax-keyword: hsl(219, 86%, 39%);
+	--marie-syntax-comment: hsl(218, 8%, 49%);
+	--marie-syntax-label-name: hsl(0, 55%, 47%);
+	--marie-syntax-name: hsl(0, 55%, 47%);
+	--marie-syntax-number: hsl(27, 83%, 53%);
+	--marie-syntax-processing-instruction: hsl(281, 81%, 36%);
+}
+
+.theme-dark {
+	--marie-syntax-keyword: hsl(266, 68%, 67%);
+	--marie-syntax-comment: hsl(0, 0%, 45%);
+	--marie-syntax-label-name: hsl(54, 63%, 66%);
+	--marie-syntax-name: hsl(54, 63%, 66%);
+	--marie-syntax-number: hsl(128, 65%, 64%);
+	--marie-syntax-processing-instruction: hsl(202, 76%, 56%);
+}

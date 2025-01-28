@@ -1,16 +1,15 @@
 name: Build and Deploy to Prod
 on:
   push:
-    branches:
-      - master
+  pull_request:
 
 jobs:
-  build:
-    name: Build
+  check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -18,13 +17,54 @@ jobs:
           cache: npm
       - name: Install Dependencies
         run: npm ci
+      - name: Check formatting
+        run: npm run format:check
+      - name: Run linter
+        run: npm run check
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install Dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm run test -- --run
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Setup Pages
+        id: setup_pages
+        uses: actions/configure-pages@v5
+      - name: Install Dependencies
+        run: npm ci
       - name: Build
         run: npm run build
+        env:
+          BASE_PATH: ${{ steps.setup_pages.outputs.base_path }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./build
+          path: ./dist
+
   deploy:
+    if: ${{ github.ref == 'refs/heads/main' }}
     permissions:
       pages: write
       id-token: write
