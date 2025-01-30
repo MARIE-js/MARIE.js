@@ -1,13 +1,17 @@
 <script lang="ts">
 	import Fa from 'svelte-fa';
 	import { faCaretRight, faCaretDown } from '@fortawesome/free-solid-svg-icons';
-	export let title: string;
-	export let open = false;
+	import type { Snippet } from 'svelte';
+	let {
+		title,
+		open = $bindable(false),
+		children,
+	}: { title: string; open?: boolean; children: Snippet } = $props();
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="top" on:click={() => (open = !open)}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div class="top" onclick={() => (open = !open)}>
 	<span class="icon">
 		<Fa icon={open ? faCaretDown : faCaretRight} />
 	</span>
@@ -15,7 +19,7 @@
 </div>
 {#if open}
 	<div class="bottom">
-		<slot />
+		{@render children()}
 	</div>
 {/if}
 

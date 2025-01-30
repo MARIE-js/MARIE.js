@@ -1,16 +1,24 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
-	import { getProjects, type Project } from '../project';
+	import { getProjects } from '../project';
 	import Modal from './Modal.svelte';
 	import { highlightCode } from '@lezer/highlight';
 	import { marieLanguage, styles } from '../syntax';
 
-	export let currentKey: string;
-	export let active: boolean;
+	let {
+		currentKey,
+		active,
+		onActivate,
+		onCancel,
+		onOpen,
+	}: {
+		currentKey: string;
+		active: boolean;
+		onActivate?: () => void;
+		onCancel?: () => void;
+		onOpen: (id: string) => void;
+	} = $props();
 
-	const dispatch = createEventDispatcher();
-
-	let currentIndex = 0;
+	let currentIndex = $state(0);
 
 	function projectsList() {
 		return Object.entries(getProjects())
@@ -32,7 +40,7 @@
 			.sort((a, b) => b._timestamp - a._timestamp);
 	}
 
-	$: projects = active ? projectsList() : [];
+	let projects = $derived(active ? projectsList() : []);
 
 	function syntaxHighlight(code: string) {
 		const tree = marieLanguage.parser.parse(code);
@@ -59,12 +67,22 @@
 	}
 </script>
 
+{#snippet footer()}
+	<div>
+		<button class="button is-info" disabled={currentIndex >= projects.length}
+			>Open</button
+		>
+		<button type="button" class="button" onclick={onCancel}> Cancel </button>
+	</div>
+{/snippet}
+
 <Modal
 	title="Recent files"
 	{active}
-	on:activate
-	on:cancel
-	on:submit={() => dispatch('open', { key: projects[currentIndex].id })}
+	{onActivate}
+	{onCancel}
+	onSubmit={() => onOpen(projects[currentIndex].id)}
+	{footer}
 >
 	{#if projects.length === 0}
 		<div class="has-text-centered">No recent projects.</div>
@@ -77,8 +95,8 @@
 							<button
 								type="button"
 								class:is-active={currentIndex === i}
-								on:click={() => (currentIndex = i)}
-								on:dblclick={() => dispatch('open', { key: projects[i].id })}
+								onclick={() => (currentIndex = i)}
+								ondblclick={() => onOpen(projects[i].id)}
 							>
 								Project modified at {project.timestamp}
 							</button>
@@ -93,14 +111,6 @@
 			{/if}
 		</div>
 	{/if}
-	<div slot="footer">
-		<button class="button is-info" disabled={currentIndex >= projects.length}
-			>Open</button
-		>
-		<button type="button" class="button" on:click={() => dispatch('cancel')}>
-			Cancel
-		</button>
-	</div>
 </Modal>
 
 <style>

@@ -1,23 +1,39 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import type { Action, Register, State } from '../marie';
 	import { bin, dec, hex, oct } from '../utils';
 	import Memory from './Memory.svelte';
 	import Registers from './Registers.svelte';
 
-	export let state: State;
-	export let log: Action[];
-	export let showMemory = true;
+	let {
+		state: machine,
+		log,
+		showMemory = true,
+		onEditRegister,
+		onEditMemory,
+		statusBar,
+		header,
+	}: {
+		state: State;
+		log: Action[];
+		showMemory?: boolean;
+		onEditRegister: (register: Register, value: number) => void;
+		onEditMemory: (address: number, value: number) => void;
+		statusBar?: Snippet;
+		header?: Snippet;
+	} = $props();
 
-	let hoverAddress: number | null = null;
-	let hoverRegister: Register | null = null;
+	let hoverAddress = $state<number | null>(null);
+	let hoverRegister = $state<Register | null>(null);
 
-	$: hoverValue =
+	let hoverValue = $derived(
 		hoverAddress !== null
-			? state.memory[hoverAddress]
+			? machine.memory[hoverAddress]
 			: hoverRegister === null
 				? null
-				: state.registers[hoverRegister];
-	$: readonly = state.halted;
+				: machine.registers[hoverRegister],
+	);
+	let readonly = $derived(machine.halted);
 
 	const registerDescription = {
 		AC: 'Accumulator',
@@ -31,33 +47,39 @@
 </script>
 
 <div class="machine-state">
-	<slot name="header" />
+	{@render header?.()}
 	<div class="registers">
 		<Registers
-			registers={state.registers}
+			registers={machine.registers}
 			{readonly}
-			on:edit-register
-			on:hover={(e) => (hoverRegister = e.detail.register)}
+			{onEditRegister}
+			onHover={(register) => {
+				hoverRegister = register;
+			}}
 		/>
 	</div>
 	{#if showMemory}
 		<div class="memory">
 			<Memory
-				memory={state.memory}
+				memory={machine.memory}
 				{log}
-				pc={state.registers.PC}
-				mar={state.registers.MAR}
+				pc={machine.registers.PC}
+				mar={machine.registers.MAR}
 				{readonly}
-				on:edit-memory
-				on:hover={(e) => (hoverAddress = e.detail.address)}
+				{onEditMemory}
+				onHover={(address) => {
+					hoverAddress = address;
+				}}
 			/>
 		</div>
 	{/if}
 	<div class="info-bar">
 		{#if hoverValue === null}
-			<div>
-				<slot name="status-bar" />
-			</div>
+			{#if statusBar}
+				<div>
+					{@render statusBar()}
+				</div>
+			{/if}
 		{:else}
 			{#if hoverAddress}
 				<div>

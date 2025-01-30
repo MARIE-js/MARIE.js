@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export type InputItem = {
 		format: InputOutputMode;
 		consumed: string;
@@ -11,17 +11,21 @@
 	import type { InputOutputMode } from '../settings';
 	import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 
-	export let inputs: InputItem[];
+	let { inputs = $bindable() }: { inputs: InputItem[] } = $props();
 
-	let inputTextareas: (HTMLTextAreaElement | undefined)[] = [];
-	$: inputTextareas = inputTextareas.filter((x) => x);
+	let inputTextareas = $state<(HTMLTextAreaElement | undefined)[]>([]);
+	let inputTextareaElements = $derived(
+		inputTextareas.filter((x) => x) as HTMLTextAreaElement[],
+	);
 	export function focus() {
-		inputTextareas[inputs.length - 1]?.focus();
+		inputTextareaElements[inputTextareaElements.length - 1].focus();
 	}
 
-	$: unconsumed = Math.max(
-		inputs.findLastIndex((input) => input.consumed !== ''),
-		0,
+	let unconsumed = $derived(
+		Math.max(
+			inputs.findLastIndex((input) => input.consumed !== ''),
+			0,
+		),
 	);
 
 	function addInput() {
@@ -37,7 +41,7 @@
 			inputs = [{ format: 'hex', consumed: '', queued: '' }];
 		}
 	}
-	$: ensureValid(inputs);
+	$effect(() => ensureValid(inputs));
 </script>
 
 <div class="inputs">
@@ -92,7 +96,7 @@
 								? 'Delete this input'
 								: 'Cannot delete consumed input'}
 							disabled={item.consumed !== '' || inputs.length === 1}
-							on:click={() => deleteInput(i)}
+							onclick={() => deleteInput(i)}
 						>
 							<span class="icon">
 								<Fa icon={faTrash} />
@@ -107,7 +111,7 @@
 		<button
 			class="button is-fullwidth"
 			title="Add additional inputs to the queue, possibly with a different format."
-			on:click={addInput}
+			onclick={addInput}
 		>
 			<span class="icon"> <Fa icon={faPlus}></Fa> </span>
 			<span>Add additional input</span>

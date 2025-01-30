@@ -3,23 +3,32 @@
 	import Modal from './Modal.svelte';
 	import { faClipboard } from '@fortawesome/free-solid-svg-icons';
 
-	export let shareUrl: string | null = null;
+	let { shareUrl = null }: { shareUrl: string | null } = $props();
 
-	let shareUrlInput: HTMLInputElement;
-	let copiedShareUrl = false;
+	let shareUrlInput = $state<HTMLInputElement>();
+	let copiedShareUrl = $state(false);
 
 	function copyShareUrl() {
-		shareUrlInput.select();
-		shareUrlInput.setSelectionRange(0, shareUrl!.length);
+		shareUrlInput?.select();
+		shareUrlInput?.setSelectionRange(0, shareUrl!.length);
 		navigator.clipboard.writeText(shareUrl!);
 		copiedShareUrl = true;
 	}
 </script>
 
+{#snippet footer()}
+	<div>
+		<button class="button is-primary" onclick={() => (shareUrl = null)}>
+			Done
+		</button>
+	</div>
+{/snippet}
+
 <Modal
 	active={shareUrl !== null}
 	title="Share this program"
-	on:cancel={() => (shareUrl = null)}
+	onCancel={() => (shareUrl = null)}
+	{footer}
 >
 	<div class="field has-addons">
 		<p class="control is-expanded">
@@ -28,7 +37,7 @@
 				class="input"
 				type="text"
 				value={shareUrl}
-				on:click={() => shareUrlInput.select()}
+				onclick={() => shareUrlInput?.select()}
 				readonly
 			/>
 		</p>
@@ -38,15 +47,10 @@
 				class="button"
 				class:is-primary={!copiedShareUrl}
 				class:is-success={copiedShareUrl}
-				on:click={copyShareUrl}
+				onclick={copyShareUrl}
 			>
 				<span class="icon"><Fa icon={faClipboard} /></span>
 			</button>
 		</p>
-	</div>
-	<div slot="footer">
-		<button class="button is-primary" on:click={() => (shareUrl = null)}>
-			Done
-		</button>
 	</div>
 </Modal>

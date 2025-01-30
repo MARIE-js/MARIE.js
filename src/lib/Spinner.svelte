@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	export let active = false;
+	let { active = false } = $props();
 
 	let beforeShowTimer: NodeJS.Timeout | null = null;
 	let afterShowTimer: NodeJS.Timeout | null = null;
 
-	let state = 0;
+	let state = $state(0);
 
-	$: onActiveChanged(active);
+	$effect(() => onActiveChanged(active));
 
 	function onActiveChanged(active: boolean) {
 		if (active) {

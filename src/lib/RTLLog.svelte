@@ -1,16 +1,17 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from 'svelte';
+	import { tick } from 'svelte';
 	import type { Action, Register } from '../marie';
 	import { dec, hex, logWatcher } from '../utils';
 
-	const dispatch = createEventDispatcher();
-
-	export let log: Action[];
-	let startStep = 0;
-	let element: HTMLDivElement | undefined;
+	let {
+		log,
+		onHoverRTL,
+	}: { log: Action[]; onHoverRTL: (pc: number | null) => void } = $props();
+	let startStep = $state(0);
+	let element = $state<HTMLDivElement>();
 
 	type Step = { pc: number; actions: (string | string[])[]; key: number };
-	let steps: Step[] = [];
+	let steps = $state<Step[]>([]);
 
 	function isAddressRegister(x: Register) {
 		return x === 'PC' || x === 'MAR';
@@ -32,7 +33,7 @@
 		},
 		() => (steps = []),
 	);
-	$: updateLogs(log);
+	$effect(() => updateLogs(log));
 
 	function getAction(action: Action) {
 		switch (action.type) {
@@ -82,7 +83,9 @@
 			element.scrollTo(0, element.scrollHeight);
 		}
 	}
-	$: update(steps);
+	$effect(() => {
+		update(steps);
+	});
 
 	async function showPrevious() {
 		if (!element) {
@@ -106,17 +109,17 @@
 <div class="log" bind:this={element}>
 	{#if startStep > 0}
 		<div class="show-prev">
-			<button class="button is-fullwidth" on:click={showPrevious}
+			<button class="button is-fullwidth" onclick={showPrevious}
 				>Show previous</button
 			>
 		</div>
 	{/if}
 	{#each steps.slice(startStep) as step (step.key)}
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			class="step"
-			on:mouseenter={() => dispatch('hover-rtl', { pc: step.pc })}
-			on:mouseleave={() => dispatch('hover-rtl', { pc: null })}
+			onmouseenter={() => onHoverRTL(step.pc)}
+			onmouseleave={() => onHoverRTL(null)}
 		>
 			{#each step.actions as action}
 				<div class="action">

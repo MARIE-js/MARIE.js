@@ -1,15 +1,20 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import Modal from './Modal.svelte';
 
-	export let active: boolean;
+	let {
+		active,
+		onLoadFromUrl,
+		onCancel,
+	}: {
+		active: boolean;
+		onLoadFromUrl: (url: string) => void;
+		onCancel: () => void;
+	} = $props();
 
-	const dispatch = createEventDispatcher();
+	let url = $state('');
+	let loading = $state(false);
 
-	let url = '';
-	let loading = false;
-
-	$: resetLoading(active);
+	$effect(() => resetLoading(active));
 
 	function resetLoading(active: boolean) {
 		loading = false;
@@ -19,36 +24,35 @@
 	function accept() {
 		if (!loading) {
 			loading = true;
-			dispatch('loadFromUrl', { url });
+			onLoadFromUrl(url);
 		}
 	}
 </script>
 
-<Modal
-	{active}
-	title="Load from URL"
-	on:cancel={() => () => dispatch('cancel')}
->
-	<div class="field">
-		<p class="control is-expanded">
-			<input class="input" type="text" bind:value={url} />
-		</p>
-	</div>
-	<div slot="footer">
+{#snippet footer()}
+	<div>
 		<button
 			class="button is-primary"
 			class:is-loading={loading}
-			on:click={accept}
+			onclick={accept}
 		>
 			Open
 		</button>
 		<button
 			type="button"
 			class="button"
-			on:click={() => dispatch('cancel')}
+			onclick={() => onCancel()}
 			disabled={loading}
 		>
 			Cancel
 		</button>
+	</div>
+{/snippet}
+
+<Modal {active} title="Load from URL" onCancel={() => onCancel()} {footer}>
+	<div class="field">
+		<p class="control is-expanded">
+			<input class="input" type="text" bind:value={url} />
+		</p>
 	</div>
 </Modal>

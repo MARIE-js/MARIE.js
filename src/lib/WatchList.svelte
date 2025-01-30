@@ -2,13 +2,18 @@
 	import Fa from 'svelte-fa';
 	import { bin, dec, hex, oct } from '../utils';
 	import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
-	import { createEventDispatcher } from 'svelte';
 
-	export let symbols: { [label: string]: number | undefined };
-	export let pointers: { [label: string]: boolean | undefined };
-	export let memory: number[];
-
-	const dispatch = createEventDispatcher();
+	let {
+		symbols,
+		pointers = $bindable(),
+		memory,
+		onHoverWatch,
+	}: {
+		symbols: { [label: string]: number | undefined };
+		pointers: { [label: string]: boolean | undefined };
+		memory: number[];
+		onHoverWatch: (address: number | null) => void;
+	} = $props();
 
 	function getItems(
 		symbols: { [label: string]: number | undefined },
@@ -31,7 +36,7 @@
 			};
 		});
 	}
-	$: items = getItems(symbols, pointers, memory);
+	let items = $derived(getItems(symbols, pointers, memory));
 </script>
 
 <div class="watches">
@@ -50,9 +55,8 @@
 			<tbody>
 				{#each items as item}
 					<tr
-						on:mouseenter={() =>
-							dispatch('hover-watch', { address: item.address })}
-						on:mouseleave={() => dispatch('hover-watch', { address: null })}
+						onmouseenter={() => onHoverWatch(item.address)}
+						onmouseleave={() => onHoverWatch(null)}
 					>
 						<td>
 							<div
@@ -67,7 +71,7 @@
 											title={pointers[item.label]
 												? 'Click to interpret directly'
 												: 'Click to interpret as pointer'}
-											on:click={() =>
+											onclick={() =>
 												(pointers[item.label] = !pointers[item.label])}
 										>
 											<Fa icon={faArrowRight} />

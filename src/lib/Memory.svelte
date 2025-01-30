@@ -1,42 +1,52 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from 'svelte';
 	import { hex, logWatcher, rgb } from '../utils';
 	import HexCell from './HexCell.svelte';
-	import type { Action, MemoryWriteAction } from '../marie';
-	export let memory: number[];
-	export let log: Action[];
-	export let pc: number;
-	export let mar: number;
-	export let readonly = false;
+	import type { Action } from '../marie';
 
-	const dispatch = createEventDispatcher();
+	let {
+		memory,
+		log,
+		pc,
+		mar,
+		readonly = false,
+		onHover,
+		onEditMemory,
+	}: {
+		memory: number[];
+		log: Action[];
+		pc: number;
+		mar: number;
+		readonly: boolean;
+		onHover: (address: number | null) => void;
+		onEditMemory: (address: number, value: number) => void;
+	} = $props();
 
-	let hoverAddress: number | null = null;
-	let editAddress: number | null = null;
+	let hoverAddress = $state<number | null>(null);
+	let editAddress = $state<number | null>(null);
 
-	let changed: Set<number> = new Set();
+	let changed = $state<{ [address: number]: boolean }>({});
 	const updateLogs = logWatcher(
 		(logs) => {
+			const result = { ...changed };
 			for (const action of logs) {
 				if (action.type === 'memwrite') {
-					changed.add(action.address);
+					result[action.address] = true;
 				}
 			}
-			changed = changed;
+			changed = result;
 		},
 		() => {
-			changed.clear();
-			changed = changed;
+			changed = {};
 		},
 	);
-	$: updateLogs(log);
+	$effect(() => updateLogs(log));
 
 	function checkReadOnly(readonly: boolean) {
 		if (readonly) {
 			editAddress = null;
 		}
 	}
-	$: checkReadOnly(readonly);
+	$effect(() => checkReadOnly(readonly));
 
 	function edit(address: number) {
 		if (!readonly) {
@@ -44,7 +54,9 @@
 		}
 	}
 
-	$: dispatch('hover', { address: editAddress === null ? hoverAddress : null });
+	$effect(() => {
+		onHover(editAddress === null ? hoverAddress : null);
+	});
 </script>
 
 <div class="memory-view">
@@ -65,7 +77,6 @@
 				<tr>
 					<th>{hex(16 * i, 3)}</th>
 					{#each [...Array(16)].map((_, j) => [j, 16 * i + j]) as [j, address]}
-						<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 						<td
 							class:is-pc={pc === address}
 							class:is-mar={mar === address}
@@ -73,20 +84,20 @@
 							class:active-col={hoverAddress !== null &&
 								hoverAddress % 16 === j}
 							class:color={address >= 0xf00}
-							class:has-text-link={changed.has(address)}
+							class:has-text-link={address in changed}
 							style:outline-color={address >= 0xf00
 								? rgb(memory[address])
 								: undefined}
-							on:mouseenter={() => (hoverAddress = address)}
-							on:mouseleave={() => (hoverAddress = null)}
-							on:dblclick={() => edit(address)}
+							onmouseenter={() => (hoverAddress = address)}
+							onmouseleave={() => (hoverAddress = null)}
+							ondblclick={() => edit(address)}
 						>
 							<HexCell
 								value={memory[address]}
 								editing={editAddress === address}
-								on:cancel={() => (editAddress = null)}
-								on:edit={(e) => {
-									dispatch('edit-memory', { address, value: e.detail.value });
+								onCancel={() => (editAddress = null)}
+								onEdit={(value) => {
+									onEditMemory(address, value);
 									editAddress = null;
 								}}
 							/>

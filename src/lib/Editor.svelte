@@ -44,14 +44,21 @@
 	import { assemble, type AssemblyError } from '../marie';
 	import { getCompletions, marieLanguage, styles } from '../syntax';
 
-	export let text: string = '';
-	export let modified = false;
-
-	export let pcLine: number | undefined = undefined;
-	export let marLine: number | undefined = undefined;
-	export let hoverLine: number | undefined = undefined;
-
-	export let breakpoints: { [line: number]: boolean | undefined } = {};
+	let {
+		text = $bindable(''),
+		modified = $bindable(false),
+		pcLine,
+		marLine,
+		hoverLine,
+		breakpoints = $bindable({}),
+	}: {
+		text: string;
+		modified: boolean;
+		pcLine?: number;
+		marLine?: number;
+		hoverLine?: number;
+		breakpoints: { [line: number]: boolean | undefined };
+	} = $props();
 
 	export function getContents() {
 		return view?.state.doc.toString() ?? '';
@@ -102,7 +109,7 @@
 	const themeCompartment = new Compartment();
 
 	onMount(() => {
-		view = new EditorView({
+		const editorView = new EditorView({
 			parent: div,
 			state: EditorState.create({
 				doc: text,
@@ -137,8 +144,9 @@
 				],
 			}),
 		});
-		view.focus();
-		return () => view?.destroy();
+		editorView.focus();
+		view = editorView;
+		return () => editorView.destroy();
 	});
 
 	function configureTheme(view: EditorView | undefined, dark: boolean) {
@@ -150,7 +158,7 @@
 			});
 		}
 	}
-	$: configureTheme(view, $darkMode);
+	$effect(() => configureTheme(view, $darkMode));
 
 	let oldText = text;
 	function setContents(view: EditorView | undefined, text: string) {
@@ -173,9 +181,9 @@
 			text = doc;
 		}
 	}
-	$: setContents(view, text);
+	$effect(() => setContents(view, text));
 
-	let errors: AssemblyError[] = [];
+	let errors = $state<AssemblyError[]>([]);
 	function checkCode() {
 		const result = assemble(getContents());
 		if (result.success) {
@@ -288,21 +296,13 @@
 		},
 		100,
 	);
-	$: updateHighlights(view, errors, pcLine, marLine, hoverLine);
+	$effect(() => updateHighlights(view, errors, pcLine, marLine, hoverLine));
 
 	// Breakpoints
 	const updateBreakpointsEffect = StateEffect.define();
 	const breakpointMarker = new BreakpointMarker();
 	const breakpointHoverMarker = new BreakpointHoverMarker();
 	let hoverBreakpointLine = 0;
-	function updateBreakpoints(
-		view: EditorView | undefined,
-		_hoverBreakpointLine: number,
-		_breakpoints: { [line: number]: boolean | undefined },
-	) {
-		view?.dispatch({ effects: updateBreakpointsEffect.of(null) });
-	}
-	$: updateBreakpoints(view, hoverBreakpointLine, breakpoints);
 	const breakpointGutter = [
 		gutter({
 			class: 'cm-breakpoint-gutter',
@@ -345,6 +345,7 @@
 							};
 						}
 					}
+					view.dispatch({ effects: updateBreakpointsEffect.of(null) });
 					return true;
 				},
 				mousemove(view, line, event) {
@@ -355,10 +356,12 @@
 						return true;
 					}
 					hoverBreakpointLine = view.state.doc.lineAt(line.from).number;
+					view.dispatch({ effects: updateBreakpointsEffect.of(null) });
 					return true;
 				},
 				mouseleave(view) {
 					hoverBreakpointLine = 0;
+					view.dispatch({ effects: updateBreakpointsEffect.of(null) });
 					return true;
 				},
 			},

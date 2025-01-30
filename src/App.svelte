@@ -51,81 +51,82 @@
 
 	type MenuType = 'file' | 'examples';
 
-	let { projectId, project } = restoreProject();
+	let { projectId, project } = $state(restoreProject());
 
 	const sim = new MarieSim(getInput);
-	let program: AssembledProgram | null = null;
-	let state = sim.state();
-	let log: Action[] = [];
-	let simulator: Simulator | undefined;
-	let editor: Editor | undefined;
-	let codeModified = false;
-	let statusText: { cls?: string; msg: string } | undefined = undefined;
-	let addressHover: number | null = null;
-	let inputLogIndices: number[] = [];
+	let program = $state<AssembledProgram | null>(null);
+	let machineState = $state(sim.state());
+	let log = $state<Action[]>([]);
+	let simulator = $state<Simulator>();
+	let editor = $state<Editor>();
+	let codeModified = $state(false);
+	let statusText = $state<{ cls?: string; msg: string }>();
+	let addressHover = $state<number | null>(null);
+	let inputLogIndices = $state<number[]>([]);
 	let inputsPanel: InputsPanel | undefined;
-	let showDataPath = false;
-	let recentOpen = false;
+	let showDataPath = $state(false);
+	let recentOpen = $state(false);
 	let fileInput: HTMLInputElement;
-	let files: FileList;
+	let files = $state<FileList>();
 	let fileMenu: HTMLDivElement;
 	let examplesMenu: HTMLDivElement;
-	let menuOpen: MenuType | null = null;
-	let loadFromURLOpen = false;
-	let shareUrl: string | null = null;
-	let menuActive = false;
-	let showInstructions = false;
-	let busyState = 0;
+	let menuOpen = $state<MenuType | null>(null);
+	let loadFromURLOpen = $state(false);
+	let shareUrl = $state<string | null>(null);
+	let menuActive = $state(false);
+	let showInstructions = $state(false);
+	let busyState = $state(0);
 
-	$: pcLine = program?.sourceMap[state.registers.PC];
-	$: marLine = program?.sourceMap[state.registers.MAR];
-	$: hoverLine =
+	let pcLine = $derived(program?.sourceMap[machineState.registers.PC]);
+	let marLine = $derived(program?.sourceMap[machineState.registers.MAR]);
+	let hoverLine = $derived(
 		program && addressHover !== null
 			? program.sourceMap[addressHover]
-			: undefined;
+			: undefined,
+	);
 
 	const autoSave = debounce(saveProject, 5000);
-	$: autoSave(projectId, project);
+	$effect(() => autoSave(projectId, project));
 
-	$: isLoading = busyState > 0;
+	let isLoading = $derived(busyState > 0);
 
 	function setStatus(msg: string, cls?: string) {
 		statusText = { cls, msg };
 	}
 
-	function onUpdate(e: { detail: { state: State; log: Action[] } }) {
-		state = e.detail.state;
-		log = e.detail.log;
+	function onUpdate(newState: State, newLog: Action[]) {
+		machineState = newState;
+		log = newLog;
 	}
 
-	function onAssembled(e: { detail: { program: AssembledProgram } }) {
+	function onAssembled(assembled: AssembledProgram) {
 		codeModified = false;
-		program = e.detail.program;
+		program = assembled;
 		setStatus('Successfully assembled program.');
 		reset();
 		saveProject(projectId, project);
 	}
 
-	function onError(e: { detail: { message: string } }) {
+	function onError(message: string) {
 		codeModified = false;
-		setStatus(e.detail.message, 'has-text-danger');
+		setStatus(message, 'has-text-danger');
 	}
 
-	function onBreak(e: { detail: { line: number } }) {
-		setStatus(`Paused at breakpoint on line ${e.detail.line}.`);
+	function onBreak(line: number) {
+		setStatus(`Paused at breakpoint on line ${line}.`);
 		editor?.scrollToPC();
 	}
 
-	function onHalt(e: { detail: { error?: string } }) {
-		if (e.detail.error) {
-			setStatus(`Machine halted abnormally: ${e.detail.error}`);
+	function onHalt(error?: string) {
+		if (error) {
+			setStatus(`Machine halted abnormally: ${error}`);
 		} else {
 			setStatus('Machine halted normally.');
 		}
 	}
 
-	function onAction(e: { detail: { type: string } }) {
-		switch (e.detail.type) {
+	function onAction(type: string) {
+		switch (type) {
 			case 'run':
 				setStatus('Running.');
 				break;
@@ -142,8 +143,8 @@
 		}
 	}
 
-	async function onPause(e: { detail: { reason?: string } }) {
-		if (e.detail.reason === 'input-empty') {
+	async function onPause(reason?: string) {
+		if (reason === 'input-empty') {
 			setStatus(
 				'Input required. Please enter input and press continue.',
 				'has-text-warning',
@@ -151,7 +152,7 @@
 			$settings.inputsOpen = true;
 			await tick();
 			inputsPanel?.focus();
-		} else if (e.detail.reason === 'input-error') {
+		} else if (reason === 'input-error') {
 			setStatus('Invalid input. Please edit and try again.', 'has-text-danger');
 			$settings.inputsOpen = true;
 			await tick();
@@ -162,13 +163,13 @@
 		}
 	}
 
-	function onStep(e: { detail: { didAction: boolean } }) {
-		if (e.detail.didAction) {
+	function onStep(didAction: boolean) {
+		if (didAction) {
 			setStatus('Executed one step.');
 		}
 	}
-	function onMicroStep(e: { detail: { type?: string } }) {
-		if (e.detail.type === 'step-end') {
+	function onMicroStep(type?: string) {
+		if (type === 'step-end') {
 			setStatus('Completed executing instruction.');
 		} else {
 			setStatus('Executed one microstep.');
@@ -268,12 +269,12 @@
 		outputActions = outputActions.filter((x) => x.index < log.length);
 		oldLogLength = log.length;
 	}
-	$: rewind(log);
+	$effect(() => rewind(log));
 
-	let outputActions: { value: number; index: number }[] = [];
-	$: outputs = outputActions.map((x) => x.value);
-	function onOutput(e: { detail: { index: number; value: number } }) {
-		outputActions = [...outputActions, e.detail];
+	let outputActions = $state<{ value: number; index: number }[]>([]);
+	let outputs = $derived(outputActions.map((x) => x.value));
+	function onOutput(index: number, value: number) {
+		outputActions = [...outputActions, { index, value }];
 	}
 
 	function reset() {
@@ -287,7 +288,7 @@
 		}
 		project.inputs = project.inputs;
 		inputLogIndices = [];
-		outputs = [];
+		outputActions = [];
 	}
 
 	function downloadCode() {
@@ -331,13 +332,13 @@
 		showInstructions = !showInstructions;
 	}
 
-	function openProject(e: { detail: { key: string } }) {
+	function openProject(key: string) {
 		if (project.code !== '') {
 			saveProject(projectId, project);
 		}
 		projectId = '';
-		project = loadProject(e.detail.key);
-		projectId = e.detail.key;
+		project = loadProject(key);
+		projectId = key;
 		recentOpen = false;
 		menuOpen = null;
 	}
@@ -485,15 +486,15 @@
 </script>
 
 <svelte:window
-	on:beforeunload={() => saveProject(projectId, project)}
-	on:click={onWindowClick}
-	on:hashchange={hashChange}
+	onbeforeunload={() => saveProject(projectId, project)}
+	onclick={onWindowClick}
+	onhashchange={hashChange}
 />
 
 <main>
 	<nav class="navbar" aria-label="main navigation">
 		<div class="navbar-brand">
-			<!-- svelte-ignore a11y-missing-attribute -->
+			<!-- svelte-ignore a11y_missing_attribute -->
 			<!-- svelte-ignore a11y_interactive_supports_focus -->
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<a
@@ -502,7 +503,7 @@
 				class:is-active={menuActive}
 				aria-label="menu"
 				aria-expanded="false"
-				on:click={() => (menuActive = !menuActive)}
+				onclick={() => (menuActive = !menuActive)}
 			>
 				<span aria-hidden="true"></span>
 				<span aria-hidden="true"></span>
@@ -517,59 +518,59 @@
 					class:is-active={menuOpen === 'file'}
 					bind:this={fileMenu}
 				>
-					<!-- svelte-ignore a11y-missing-attribute -->
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<!-- svelte-ignore a11y-no-static-element-interactions -->
-					<a class="navbar-link" on:click={() => toggleMenu('file')}>
+					<!-- svelte-ignore a11y_missing_attribute -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<a class="navbar-link" onclick={() => toggleMenu('file')}>
 						<span class="icon">
 							<Fa icon={faFile} />
 						</span>
 						<span>File</span>
 					</a>
-					<!-- svelte-ignore a11y-no-static-element-interactions -->
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<!-- svelte-ignore a11y-missing-attribute -->
+					<!-- svelte-ignore a11y_missing_attribute -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div class="navbar-dropdown">
-						<a class="navbar-item" on:click={clearProject}>
+						<a class="navbar-item" onclick={clearProject}>
 							<span class="icon">
 								<Fa icon={faFile} />
 							</span>
 							<span>New</span>
 						</a>
 						<hr class="navbar-divider" />
-						<a class="navbar-item" on:click={() => (recentOpen = true)}>
+						<a class="navbar-item" onclick={() => (recentOpen = true)}>
 							<span class="icon">
 								<Fa icon={faFolderOpen} />
 							</span>
 							<span>Recent files</span>
 						</a>
-						<a class="navbar-item" on:click={() => fileInput.click()}>
+						<a class="navbar-item" onclick={() => fileInput.click()}>
 							<span class="icon">
 								<Fa icon={faUpload} />
 							</span>
 							<span>Upload file</span>
 						</a>
-						<a class="navbar-item" on:click={() => (loadFromURLOpen = true)}>
+						<a class="navbar-item" onclick={() => (loadFromURLOpen = true)}>
 							<span class="icon">
 								<Fa icon={faGlobe} />
 							</span>
 							<span>Load from URL</span>
 						</a>
 						<hr class="navbar-divider" />
-						<a class="navbar-item" on:click={downloadCode}>
+						<a class="navbar-item" onclick={downloadCode}>
 							<span class="icon">
 								<Fa icon={faDownload} />
 							</span>
 							<span>Download code</span>
 						</a>
-						<a class="navbar-item" on:click={shareProject}>
+						<a class="navbar-item" onclick={shareProject}>
 							<span class="icon">
 								<Fa icon={faShareNodes} />
 							</span>
 							<span>Get share URL</span>
 						</a>
 						<hr class="navbar-divider" />
-						<a class="navbar-item" on:click={downloadBin}>
+						<a class="navbar-item" onclick={downloadBin}>
 							<span class="icon">
 								<Fa icon={faDatabase} />
 							</span>
@@ -582,21 +583,21 @@
 					class:is-active={menuOpen === 'examples'}
 					bind:this={examplesMenu}
 				>
-					<!-- svelte-ignore a11y-missing-attribute -->
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<!-- svelte-ignore a11y-no-static-element-interactions -->
-					<a class="navbar-link" on:click={() => toggleMenu('examples')}>
+					<!-- svelte-ignore a11y_missing_attribute -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<a class="navbar-link" onclick={() => toggleMenu('examples')}>
 						<span class="icon">
 							<Fa icon={faLightbulb} />
 						</span>
 						<span>Examples</span>
 					</a>
 					<div class="navbar-dropdown">
-						<!-- svelte-ignore a11y-no-static-element-interactions -->
 						{#each examples as example}
-							<!-- svelte-ignore a11y-click-events-have-key-events -->
-							<!-- svelte-ignore a11y-missing-attribute -->
-							<a on:click={() => loadFromURL(example.url)} class="navbar-item">
+							<!-- svelte-ignore a11y_missing_attribute -->
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<a onclick={() => loadFromURL(example.url)} class="navbar-item">
 								<span class="icon"><Fa icon={example.icon} /></span>
 								<span>{example.name}</span>
 							</a>
@@ -611,7 +612,7 @@
 						<button
 							class="button"
 							class:is-info={showDataPath}
-							on:click={toggleDataPath}
+							onclick={toggleDataPath}
 							title={`Click to ${showDataPath ? 'hide' : 'show'} data path visualisation`}
 						>
 							<span class="icon">
@@ -623,7 +624,7 @@
 						<button
 							class="button"
 							class:is-info={showInstructions}
-							on:click={toggleInstructionSet}
+							onclick={toggleInstructionSet}
 							title={`Click to ${showInstructions ? 'hide' : 'show'} instruction set`}
 						>
 							<span class="icon">
@@ -632,11 +633,7 @@
 							<span>Instruction Set</span>
 						</button>
 
-						<button
-							class="button"
-							on:click={toggleTheme}
-							title={`Switch theme`}
-						>
+						<button class="button" onclick={toggleTheme} title={`Switch theme`}>
 							<span class="icon">
 								<Fa icon={faPalette} />
 							</span>
@@ -658,82 +655,109 @@
 		</div>
 	</nav>
 	<div class="panels">
-		<SplitPanel
-			direction={$isMobile ? 'vertical' : 'horizontal'}
-			bind:split={$settings.leftPanel}
-		>
-			<div class="panel" slot="panelA">
+		{#snippet editorPanel()}
+			<div class="panel">
+				<Editor
+					bind:this={editor}
+					bind:text={project.code}
+					bind:modified={codeModified}
+					bind:breakpoints={project.breakpoints}
+					{pcLine}
+					{marLine}
+					{hoverLine}
+				/>
+			</div>
+		{/snippet}
+
+		{#snippet dataPathPanel()}
+			<div class="panel">
+				<DataPath state={machineState} {log} />
+			</div>
+		{/snippet}
+
+		{#snippet editorAndDataPathPanel()}
+			<div class="panel">
+				<SplitPanel
+					direction="vertical"
+					bind:split={$settings.editorPanel}
+					showPanels={showDataPath ? 'all' : 'a'}
+					panelA={editorPanel}
+					panelB={dataPathPanel}
+				/>
+			</div>
+		{/snippet}
+
+		{#snippet simulatorComponent()}
+			<Simulator
+				bind:this={simulator}
+				bind:speed={$settings.speed}
+				{sim}
+				breakpoints={project.breakpoints}
+				code={project.code}
+				{codeModified}
+				{onAssembled}
+				{onError}
+				{onOutput}
+				{onUpdate}
+				{onPause}
+				{onStep}
+				{onMicroStep}
+				{onAction}
+				{onBreak}
+				{onHalt}
+			/>
+		{/snippet}
+
+		{#snippet statusBar()}
+			{#if statusText}
+				<span class={statusText.cls}>{statusText.msg}</span>
+			{/if}
+		{/snippet}
+
+		{#snippet machineStatePanel()}
+			<div slot="panelB" class="panel machine-state">
+				<MachineState
+					state={machineState}
+					{log}
+					onEditMemory={(address, value) =>
+						simulator?.editMemory(address, value)}
+					onEditRegister={(register, value) =>
+						simulator?.editRegister(register, value)}
+					header={simulatorComponent}
+					{statusBar}
+				/>
+			</div>
+		{/snippet}
+
+		{#snippet leftInnerPanelA()}
+			<div class="panel">
+				<SplitPanel
+					direction="vertical"
+					bind:split={$settings.topPanel}
+					panelA={editorAndDataPathPanel}
+					panelB={machineStatePanel}
+				></SplitPanel>
+			</div>
+		{/snippet}
+		{#snippet leftInnerPanelB()}
+			<div class="panel">
+				<InstructionSet />
+			</div>
+		{/snippet}
+
+		{#snippet leftPanel()}
+			<div class="panel">
 				<SplitPanel
 					direction="horizontal"
 					bind:split={$settings.instructionPanel}
 					showPanels={showInstructions ? 'all' : 'a'}
-				>
-					<div slot="panelA" class="panel">
-						<SplitPanel direction="vertical" bind:split={$settings.topPanel}>
-							<div slot="panelA" class="panel">
-								<SplitPanel
-									direction="vertical"
-									bind:split={$settings.editorPanel}
-									showPanels={showDataPath ? 'all' : 'a'}
-								>
-									<div class="panel" slot="panelA">
-										<Editor
-											bind:this={editor}
-											bind:text={project.code}
-											bind:modified={codeModified}
-											bind:breakpoints={project.breakpoints}
-											{pcLine}
-											{marLine}
-											{hoverLine}
-										/>
-									</div>
-									<div class="panel" slot="panelB">
-										<DataPath {state} {log} />
-									</div>
-								</SplitPanel>
-							</div>
-							<div slot="panelB" class="panel machine-state">
-								<MachineState
-									{state}
-									{log}
-									on:edit-memory={(e) =>
-										simulator?.editMemory(e.detail.address, e.detail.value)}
-									on:edit-register={(e) =>
-										simulator?.editRegister(e.detail.register, e.detail.value)}
-								>
-									<Simulator
-										slot="header"
-										bind:this={simulator}
-										bind:speed={$settings.speed}
-										{sim}
-										breakpoints={project.breakpoints}
-										code={project.code}
-										{codeModified}
-										on:assembled={onAssembled}
-										on:error={onError}
-										on:output={onOutput}
-										on:update={onUpdate}
-										on:pause={onPause}
-										on:step={onStep}
-										on:microStep={onMicroStep}
-										on:action={onAction}
-										on:break={onBreak}
-										on:halt={onHalt}
-									></Simulator>
-									<div slot="status-bar">
-										{#if statusText}
-											<span class={statusText.cls}>{statusText.msg}</span>
-										{/if}
-									</div>
-								</MachineState>
-							</div>
-						</SplitPanel>
-					</div>
-					<div slot="panelB" class="panel">
-						<InstructionSet />
-					</div>
-				</SplitPanel>
+					panelA={leftInnerPanelA}
+					panelB={leftInnerPanelB}
+				></SplitPanel>
 			</div>
+		{/snippet}
+
+		{#snippet outputPanels()}
 			<div class="panel output-panels" slot="panelB">
 				<div class="output-panels-inner">
 					<CollapsiblePanel
@@ -743,7 +767,7 @@
 						<OutputLog {outputs} bind:outputMode={project.outputMode} />
 					</CollapsiblePanel>
 					<CollapsiblePanel title="RTL log" bind:open={$settings.rtlLogOpen}>
-						<RtlLog {log} on:hover-rtl={(e) => (addressHover = e.detail.pc)} />
+						<RtlLog {log} onHoverRTL={(pc) => (addressHover = pc)} />
 					</CollapsiblePanel>
 					<CollapsiblePanel
 						title="Watch list"
@@ -751,8 +775,8 @@
 					>
 						<WatchList
 							bind:pointers={project.pointers}
-							on:hover-watch={(e) => (addressHover = e.detail.address)}
-							memory={state.memory}
+							onHoverWatch={(address) => (addressHover = address)}
+							memory={machineState.memory}
 							symbols={program?.symbols ?? {}}
 						/>
 					</CollapsiblePanel>
@@ -760,22 +784,31 @@
 						<InputsPanel bind:this={inputsPanel} bind:inputs={project.inputs} />
 					</CollapsiblePanel>
 					<CollapsiblePanel title="Display" bind:open={$settings.displayOpen}>
-						<Display memory={state.memory} />
+						<Display memory={machineState.memory} />
 					</CollapsiblePanel>
 				</div>
 			</div>
-		</SplitPanel>
+		{/snippet}
+
+		<SplitPanel
+			direction={$isMobile ? 'vertical' : 'horizontal'}
+			bind:split={$settings.leftPanel}
+			panelA={leftPanel}
+			panelB={outputPanels}
+		></SplitPanel>
 	</div>
 	<Recent
 		active={recentOpen}
 		currentKey={projectId}
-		on:cancel={() => (recentOpen = false)}
-		on:open={openProject}
+		onCancel={() => (recentOpen = false)}
+		onOpen={openProject}
 	/>
 	<LoadFromUrl
 		active={loadFromURLOpen}
-		on:cancel={() => (loadFromURLOpen = false)}
-		on:loadFromUrl={(e) => loadFromURL(e.detail.url)}
+		onCancel={() => (loadFromURLOpen = false)}
+		onLoadFromUrl={(url) => {
+			loadFromURL(url);
+		}}
 	/>
 	<ShareUrl {shareUrl} />
 	<input
@@ -783,7 +816,7 @@
 		type="file"
 		bind:this={fileInput}
 		bind:files
-		on:change={uploaded}
+		onchange={uploaded}
 		accept=".mar"
 	/>
 	<Spinner active={isLoading} />
