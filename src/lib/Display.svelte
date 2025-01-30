@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { rgb } from '../utils';
 
-	export let memory: number[];
+	let { memory }: { memory: number[] } = $props();
 
 	function getColor(memory: number[], i: number, j: number) {
 		const address = 0xf00 + 16 * i + j;

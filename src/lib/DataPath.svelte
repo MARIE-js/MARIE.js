@@ -2,16 +2,15 @@
 	import type { Action, State, Register } from '../marie';
 	import { hex, logWatcher } from '../utils';
 
-	export let state: State;
-	export let log: Action[];
+	let { state: machine, log }: { state: State; log: Action[] } = $props();
 
-	let action: Action | null = null;
-	let step = 0;
+	let action = $state<Action | null>(null);
+	let step = $state(0);
 
 	type Source = Register | 'M' | 'ADD' | 'SUB' | null;
 	type Target = Register | 'M' | 'INC_PC' | null;
-	let read: Source = null;
-	let write: Target = null;
+	let read = $state<Source>(null);
+	let write = $state<Target>(null);
 
 	const helpText: { [key: string]: string | undefined } = {
 		cu: 'The control unit activates read and write signals to transfer data between selected devices.',
@@ -99,7 +98,7 @@
 			step = 0;
 		},
 	);
-	$: updateLogs(log);
+	$effect(() => updateLogs(log));
 
 	function updateSignals(action: Action | null) {
 		if (action === null) {
@@ -147,8 +146,8 @@
 				write = null;
 		}
 	}
-	$: updateSignals(action);
-	$: busActive = read !== null && write !== null;
+	$effect(() => updateSignals(action));
+	let busActive = $derived(read !== null && write !== null);
 
 	function isBusTransferActive(
 		target: Target,
@@ -171,7 +170,7 @@
 		return read === target && write == source;
 	}
 
-	let hover: string | null = null;
+	let hover = $state<string | null>(null);
 </script>
 
 <div class="data-path">
@@ -573,8 +572,8 @@
 						width="36.248"
 						height="105.04"
 						role="presentation"
-						on:mouseenter={() => (hover = 'cu')}
-						on:mouseleave={() => (hover = null)}
+						onmouseenter={() => (hover = 'cu')}
+						onmouseleave={() => (hover = null)}
 					/>
 					<rect
 						id="ir-chip"
@@ -586,8 +585,8 @@
 						width="23.019"
 						height="9.7896"
 						role="presentation"
-						on:mouseenter={() => (hover = 'ir')}
-						on:mouseleave={() => (hover = null)}
+						onmouseenter={() => (hover = 'ir')}
+						onmouseleave={() => (hover = null)}
 					/>
 					<rect
 						id="out-chip"
@@ -597,8 +596,8 @@
 						y="34.793"
 						width="23.019"
 						role="presentation"
-						on:mouseenter={() => (hover = 'out')}
-						on:mouseleave={() => (hover = null)}
+						onmouseenter={() => (hover = 'out')}
+						onmouseleave={() => (hover = null)}
 						height="9.7896"
 					/>
 					<rect
@@ -610,8 +609,8 @@
 						width="23.019"
 						height="9.7896"
 						role="presentation"
-						on:mouseenter={() => (hover = 'in')}
-						on:mouseleave={() => (hover = null)}
+						onmouseenter={() => (hover = 'in')}
+						onmouseleave={() => (hover = null)}
 					/>
 					<rect
 						id="ac-chip"
@@ -623,8 +622,8 @@
 						width="23.019"
 						height="9.7896"
 						role="presentation"
-						on:mouseenter={() => (hover = 'ac')}
-						on:mouseleave={() => (hover = null)}
+						onmouseenter={() => (hover = 'ac')}
+						onmouseleave={() => (hover = null)}
 					/>
 					<rect
 						id="mbr-chip"
@@ -636,8 +635,8 @@
 						width="23.019"
 						height="9.7896"
 						role="presentation"
-						on:mouseenter={() => (hover = 'mbr')}
-						on:mouseleave={() => (hover = null)}
+						onmouseenter={() => (hover = 'mbr')}
+						onmouseleave={() => (hover = null)}
 					/>
 					<rect
 						id="pc-chip"
@@ -649,8 +648,8 @@
 						width="23.019"
 						height="9.7896"
 						role="presentation"
-						on:mouseenter={() => (hover = 'pc')}
-						on:mouseleave={() => (hover = null)}
+						onmouseenter={() => (hover = 'pc')}
+						onmouseleave={() => (hover = null)}
 					/>
 					<rect
 						id="mar-chip"
@@ -662,8 +661,8 @@
 						width="23.019"
 						height="9.7896"
 						role="presentation"
-						on:mouseenter={() => (hover = 'mar')}
-						on:mouseleave={() => (hover = null)}
+						onmouseenter={() => (hover = 'mar')}
+						onmouseleave={() => (hover = null)}
 					/>
 					<rect
 						id="m-chip"
@@ -675,8 +674,8 @@
 						width="36.248"
 						height="105.04"
 						role="presentation"
-						on:mouseenter={() => (hover = 'm')}
-						on:mouseleave={() => (hover = null)}
+						onmouseenter={() => (hover = 'm')}
+						onmouseleave={() => (hover = null)}
 					/>
 				</g>
 				<path
@@ -684,8 +683,8 @@
 					class="chip"
 					class:read={read === 'ADD' || read === 'SUB'}
 					role="presentation"
-					on:mouseenter={() => (hover = 'alu')}
-					on:mouseleave={() => (hover = null)}
+					onmouseenter={() => (hover = 'alu')}
+					onmouseleave={() => (hover = null)}
 					d="m137.58 52.917h9.2604l2.6458 3.3073 2.6458-3.3073h9.2604l-7.9375 10.583h-7.9375z"
 				/>
 			</g>
@@ -985,7 +984,7 @@
 							y="42.283726"
 							font-size="6.35px"
 							stroke-width=".26458"
-							style="line-height:1.25">{hex(state.registers.IR)}</tspan
+							style="line-height:1.25">{hex(machine.registers.IR)}</tspan
 						></text
 					>
 					<text
@@ -1001,7 +1000,7 @@
 							y="42.283726"
 							font-size="6.35px"
 							stroke-width=".26458"
-							style="line-height:1.25">{hex(state.registers.OUT)}</tspan
+							style="line-height:1.25">{hex(machine.registers.OUT)}</tspan
 						></text
 					>
 					<text
@@ -1017,7 +1016,7 @@
 							y="42.283726"
 							font-size="6.35px"
 							stroke-width=".26458"
-							style="line-height:1.25">{hex(state.registers.IN)}</tspan
+							style="line-height:1.25">{hex(machine.registers.IN)}</tspan
 						></text
 					>
 					<text
@@ -1034,7 +1033,7 @@
 							font-size="6.35px"
 							stroke-width=".26458"
 							style="line-height:1.25"
-							>{hex(state.memory[state.registers.MAR])}</tspan
+							>{hex(machine.memory[machine.registers.MAR])}</tspan
 						></text
 					>
 					<text
@@ -1050,7 +1049,7 @@
 							y="42.280621"
 							font-size="6.35px"
 							stroke-width=".26458"
-							style="line-height:1.25">{hex(state.registers.AC)}</tspan
+							style="line-height:1.25">{hex(machine.registers.AC)}</tspan
 						></text
 					>
 					<text
@@ -1066,7 +1065,7 @@
 							y="42.280621"
 							font-size="6.35px"
 							stroke-width=".26458"
-							style="line-height:1.25">{hex(state.registers.MBR)}</tspan
+							style="line-height:1.25">{hex(machine.registers.MBR)}</tspan
 						></text
 					>
 					<text
@@ -1082,7 +1081,7 @@
 							y="42.280621"
 							font-size="6.35px"
 							stroke-width=".26458"
-							style="line-height:1.25">{hex(state.registers.PC, 3)}</tspan
+							style="line-height:1.25">{hex(machine.registers.PC, 3)}</tspan
 						></text
 					>
 					<text
@@ -1098,7 +1097,7 @@
 							y="42.280621"
 							font-size="6.35px"
 							stroke-width=".26458"
-							style="line-height:1.25">{hex(state.registers.MAR, 3)}</tspan
+							style="line-height:1.25">{hex(machine.registers.MAR, 3)}</tspan
 						></text
 					>
 				</g>
@@ -1191,8 +1190,8 @@
 				width="193.52"
 				height="9.9157"
 				role="presentation"
-				on:mouseenter={() => (hover = 'read')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'read')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="write-hover"
@@ -1201,15 +1200,15 @@
 				width="193.52"
 				height="9.3544"
 				role="presentation"
-				on:mouseenter={() => (hover = 'write')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'write')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<path
 				id="ac-sign-hover"
 				d="m38.229 63.789 119.31-0.39688 2.5136-7.4171 4.9551-3.4036 0.155 19.457-144.52 0.52917-0.1151-10.496 14.972-0.37418z"
 				role="presentation"
-				on:mouseenter={() => (hover = 'acSign')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'acSign')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="read-ir-hover"
@@ -1218,8 +1217,8 @@
 				width="5.7997"
 				height="23.199"
 				role="presentation"
-				on:mouseenter={() => (hover = 'readIR')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'readIR')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="read-in-hover"
@@ -1228,8 +1227,8 @@
 				width="5.9868"
 				height="22.076"
 				role="presentation"
-				on:mouseenter={() => (hover = 'readIN')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'readIN')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="read-ac-hover"
@@ -1238,8 +1237,8 @@
 				width="6.361"
 				height="22.638"
 				role="presentation"
-				on:mouseenter={() => (hover = 'readAC')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'readAC')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="read-mbr-hover"
@@ -1248,8 +1247,8 @@
 				width="5.0514"
 				height="22.451"
 				role="presentation"
-				on:mouseenter={() => (hover = 'readMBR')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'readMBR')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="read-pc-hover"
@@ -1258,8 +1257,8 @@
 				width="5.9868"
 				height="22.451"
 				role="presentation"
-				on:mouseenter={() => (hover = 'readPC')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'readPC')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="read-mar-hover"
@@ -1268,8 +1267,8 @@
 				width="4.8643"
 				height="22.825"
 				role="presentation"
-				on:mouseenter={() => (hover = 'readMAR')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'readMAR')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="read-m-hover"
@@ -1278,8 +1277,8 @@
 				width="24.322"
 				height="5.7997"
 				role="presentation"
-				on:mouseenter={() => (hover = 'readM')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'readM')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="write-m-hover"
@@ -1288,8 +1287,8 @@
 				width="23.199"
 				height="7.4835"
 				role="presentation"
-				on:mouseenter={() => (hover = 'writeM')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'writeM')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="write-ir-hover"
@@ -1298,8 +1297,8 @@
 				width="5.2385"
 				height="52.759"
 				role="presentation"
-				on:mouseenter={() => (hover = 'writeIR')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'writeIR')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="write-out-hover"
@@ -1308,8 +1307,8 @@
 				width="6.361"
 				height="52.198"
 				role="presentation"
-				on:mouseenter={() => (hover = 'writeOUT')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'writeOUT')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="write-ac-hover"
@@ -1318,8 +1317,8 @@
 				width="7.4835"
 				height="52.572"
 				role="presentation"
-				on:mouseenter={() => (hover = 'writeAC')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'writeAC')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="write-mbr-hover"
@@ -1328,8 +1327,8 @@
 				width="6.361"
 				height="51.824"
 				role="presentation"
-				on:mouseenter={() => (hover = 'writeMBR')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'writeMBR')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="write-pc-hover"
@@ -1338,8 +1337,8 @@
 				width="6.1739"
 				height="51.075"
 				role="presentation"
-				on:mouseenter={() => (hover = 'writePC')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'writePC')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="inc-pc-hover"
@@ -1348,8 +1347,8 @@
 				width="6.1739"
 				height="50.327"
 				role="presentation"
-				on:mouseenter={() => (hover = 'incPC')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'incPC')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="write-mar-hover"
@@ -1358,8 +1357,8 @@
 				width="5.7997"
 				height="52.385"
 				role="presentation"
-				on:mouseenter={() => (hover = 'writeMAR')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'writeMAR')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="step-hover"
@@ -1368,15 +1367,15 @@
 				width="13.283"
 				height="48.83"
 				role="presentation"
-				on:mouseenter={() => (hover = 'step')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'step')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<path
 				id="alu-opcode-hover"
 				d="m40.411 10.103 0.18709 52.572h109.07l-7.2964-10.103-95.976-0.74836-0.18709-41.534z"
 				role="presentation"
-				on:mouseenter={() => (hover = 'aluOpcode')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'aluOpcode')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="alu-a-hover"
@@ -1385,8 +1384,8 @@
 				width="5.2385"
 				height="8.2319"
 				role="presentation"
-				on:mouseenter={() => (hover = 'aluA')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'aluA')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="alu-b-hover"
@@ -1395,8 +1394,8 @@
 				width="4.6772"
 				height="8.2319"
 				role="presentation"
-				on:mouseenter={() => (hover = 'aluB')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'aluB')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="mar-m-hover"
@@ -1405,8 +1404,8 @@
 				width="6.361"
 				height="4.8643"
 				role="presentation"
-				on:mouseenter={() => (hover = 'marM')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'marM')}
+				onmouseleave={() => (hover = null)}
 			/>
 			<rect
 				id="ir-cu-hover"
@@ -1415,16 +1414,16 @@
 				width="12.909"
 				height="4.6772"
 				role="presentation"
-				on:mouseenter={() => (hover = 'irCu')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'irCu')}
+				onmouseleave={() => (hover = null)}
 			/><path
 				id="bus-hover"
 				d="m64.559 43.26v35.056h172.64v-3.1734h-10.717v-31.883h-3.174v31.883h-23.283v-31.883h-3.176v31.883h-25.93v-31.883h-3.174v31.883h-12.7v-12.965h-3.175v12.965h-12.701v-31.883h-3.174v31.883h-15.345v-31.883h-3.176v31.883h-23.283v-31.883h-3.1734v31.883h-23.285v-31.883z"
 				color="#000000"
 				style="-inkscape-stroke:none"
 				role="presentation"
-				on:mouseenter={() => (hover = 'bus')}
-				on:mouseleave={() => (hover = null)}
+				onmouseenter={() => (hover = 'bus')}
+				onmouseleave={() => (hover = null)}
 			/>
 		</g>
 	</svg>

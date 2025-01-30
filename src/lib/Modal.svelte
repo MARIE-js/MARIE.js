@@ -1,13 +1,29 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from 'svelte';
+	import { tick, type Snippet } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 
-	export let title: string;
-	export let active: boolean;
-	const dispatch = createEventDispatcher();
-	let form: HTMLFormElement | undefined;
+	let {
+		title,
+		active,
+		onActivate = () => {},
+		onCancel = () => {},
+		onSubmit = () => {},
+		children,
+		footer,
+	}: {
+		title: string;
+		active: boolean;
+		onActivate?: () => void;
+		onCancel?: () => void;
+		onSubmit?: () => void;
+		children: Snippet;
+		footer?: Snippet;
+	} = $props();
+	let form = $state<HTMLFormElement>();
 
-	$: setFocus(active);
+	$effect(() => {
+		setFocus(active);
+	});
 
 	async function setFocus(active: boolean) {
 		if (active) {
@@ -15,27 +31,28 @@
 			if (form) {
 				form.focus();
 			}
-			dispatch('activate');
+			if (onActivate) {
+				onActivate();
+			}
 		}
-	}
-
-	function cancel() {
-		dispatch('cancel');
 	}
 </script>
 
 {#if active}
-	<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 	<form
 		tabindex="0"
 		bind:this={form}
 		transition:fade={{ duration: 200 }}
 		class="modal is-active"
-		on:submit|preventDefault={() => dispatch('submit')}
+		onsubmit={(e) => {
+			e.preventDefault();
+			onSubmit();
+		}}
 	>
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-no-static-element-interactions-->
-		<div class="modal-background" on:click={cancel}></div>
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="modal-background" onclick={onCancel}></div>
 		<div transition:fly={{ y: -200, duration: 200 }} class="modal-card">
 			<header class="modal-card-head">
 				<p class="modal-card-title">{title}</p>
@@ -43,16 +60,18 @@
 					type="button"
 					class="delete"
 					aria-label="close"
-					on:click={cancel}
+					onclick={onCancel}
 				></button>
 			</header>
 			<section class="modal-card-body">
-				<slot />
+				{@render children()}
 			</section>
 			<footer class="modal-card-foot">
-				<slot name="footer">
-					<button class="button" on:click={cancel}>Cancel</button>
-				</slot>
+				{#if footer}
+					{@render footer()}
+				{:else}
+					<button class="button" onclick={onCancel}>Cancel</button>
+				{/if}
 			</footer>
 		</div>
 	</form>

@@ -3,10 +3,15 @@
 	import { bin, dec, hex, oct } from '../utils';
 	import type { InputOutputMode } from '../settings';
 
-	export let outputs: number[];
-	export let outputMode: InputOutputMode;
+	let {
+		outputs,
+		outputMode = $bindable(),
+	}: {
+		outputs: number[];
+		outputMode: InputOutputMode;
+	} = $props();
 
-	let element: HTMLDivElement | undefined;
+	let element = $state<HTMLDivElement>();
 
 	function showValue(mode: InputOutputMode, value: number) {
 		switch (mode) {
@@ -40,7 +45,9 @@
 			element.scrollTo(0, element.scrollHeight);
 		}
 	}
-	$: update(outputs);
+	$effect(() => {
+		update(outputs);
+	});
 </script>
 
 <div class="outputs">

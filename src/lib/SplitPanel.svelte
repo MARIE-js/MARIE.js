@@ -1,26 +1,41 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick, type Snippet } from 'svelte';
 	import Split from 'split.js';
 
 	type Direction = 'horizontal' | 'vertical';
 	type Panel = 'all' | 'a' | 'b';
 
-	export let direction: Direction = 'horizontal';
-	export let split = 50;
-	export let showPanels: Panel = 'all';
+	let {
+		direction = 'horizontal',
+		split = $bindable(50),
+		showPanels = 'all',
+		panelA,
+		panelB,
+	}: {
+		direction?: Direction;
+		split?: number;
+		showPanels?: Panel;
+		panelA: Snippet;
+		panelB: Snippet;
+	} = $props();
 
-	let panelA: HTMLDivElement;
-	let panelB: HTMLDivElement;
+	let panelAElement = $state<HTMLDivElement>();
+	let panelBElement = $state<HTMLDivElement>();
 
 	let instance: Split.Instance | null = null;
 
-	$: init(direction, showPanels);
-	$: resize(split);
+	$effect(() => {
+		init(direction, showPanels);
+	});
+	$effect(() => resize(split));
 
-	function init(direction: Direction, showPanels: Panel) {
+	async function init(direction: Direction, showPanels: Panel) {
+		// Must only trigger on direction/showPanel changes.
+		// Otherwise re-initialising can cause the scroll position to be set incorrectly
+		await tick();
 		cleanup();
-		if (showPanels === 'all' && panelA && panelB) {
-			instance = Split([panelA, panelB], {
+		if (showPanels === 'all' && panelAElement && panelBElement) {
+			instance = Split([panelAElement, panelBElement], {
 				direction,
 				minSize: 0,
 				sizes: [split, 100 - split],
@@ -60,20 +75,20 @@
 	class:vertical={direction === 'vertical'}
 >
 	<div
-		bind:this={panelA}
+		bind:this={panelAElement}
 		class="split-panel"
 		class:no-splitter={showPanels !== 'all'}
 		class:is-hidden={!showPanel('a', showPanels)}
 	>
-		<slot name="panelA" />
+		{@render panelA()}
 	</div>
 	<div
-		bind:this={panelB}
+		bind:this={panelBElement}
 		class="split-panel"
 		class:no-splitter={showPanels !== 'all'}
 		class:is-hidden={!showPanel('b', showPanels)}
 	>
-		<slot name="panelB" />
+		{@render panelB()}
 	</div>
 </div>
 

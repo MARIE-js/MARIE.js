@@ -1,26 +1,35 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from 'svelte';
+	import { tick } from 'svelte';
 	import { hex } from '../utils';
 
-	export let value: number;
-	export let digits = 4;
-	export let editing = false;
+	let {
+		value,
+		digits = 4,
+		editing = false,
+		onEdit,
+		onCancel,
+	}: {
+		value: number;
+		digits?: number;
+		editing: boolean;
+		onEdit: (value: number) => void;
+		onCancel: () => void;
+	} = $props();
 
-	let editInput: HTMLInputElement;
-	let editValue = '';
-	$: valueValid = /^[0-9a-fA-F]+$/.test(editValue);
-	$: display = hex(value, digits);
-	$: startEdit(editing);
-
-	const dispatch = createEventDispatcher();
+	let editInput = $state<HTMLInputElement>();
+	let editValue = $state('');
+	let valueValid = $derived(/^[0-9a-fA-F]+$/.test(editValue));
+	let display = $derived(hex(value, digits));
+	$effect(() => {
+		startEdit(editing);
+	});
 
 	async function startEdit(editing: boolean) {
 		if (editing) {
 			editValue = display;
-			valueValid = true;
 			await tick();
-			editInput.focus();
-			editInput.select();
+			editInput?.focus();
+			editInput?.select();
 		}
 	}
 
@@ -38,12 +47,12 @@
 		if (newValue === value) {
 			cancelEdit();
 		} else {
-			dispatch('edit', { value: newValue });
+			onEdit(newValue);
 		}
 	}
 
 	function cancelEdit() {
-		dispatch('cancel');
+		onCancel();
 	}
 
 	function onKeyUp(e: KeyboardEvent) {
@@ -68,12 +77,11 @@
 			bind:this={editInput}
 			maxlength={digits}
 			bind:value={editValue}
-			on:focusout={finishEdit}
-			on:keyup={onKeyUp}
+			onfocusout={finishEdit}
+			onkeyup={onKeyUp}
 		/>
 	</div>
 {:else}
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div class="value is-family-monospace">
 		{display}
 	</div>

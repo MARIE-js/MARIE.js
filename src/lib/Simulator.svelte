@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import {
 		MarieSim,
 		type AssembledProgram,
 		assemble,
 		type Register,
 		type Action,
+		type State,
 	} from '../marie';
 	import { throttle } from 'lodash';
 	import {
@@ -22,30 +22,58 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 
-	export let sim: MarieSim;
-	export let code: string;
-	export let codeModified: boolean;
-	export let breakpoints: { [line: number]: boolean | undefined } = {};
-	export let speed: number;
+	let {
+		sim,
+		code,
+		codeModified,
+		breakpoints = {},
+		speed = $bindable(),
+		onAssembled,
+		onError,
+		onOutput,
+		onUpdate,
+		onPause,
+		onStep,
+		onMicroStep,
+		onAction,
+		onBreak,
+		onHalt,
+	}: {
+		sim: MarieSim;
+		code: string;
+		codeModified: boolean;
+		breakpoints: { [line: number]: boolean | undefined };
+		speed: number;
+		onAssembled: (program: AssembledProgram) => void;
+		onError: (message: string) => void;
+		onOutput: (index: number, value: number) => void;
+		onUpdate: (state: State, log: Action[]) => void;
+		onPause: (reason?: string) => void;
+		onStep: (didAction: boolean) => void;
+		onMicroStep: (type: Action['type']) => void;
+		onAction: (type: 'run' | 'stepBack' | 'microStepBack' | 'restart') => void;
+		onBreak: (line: number) => void;
+		onHalt: (error?: string) => void;
+	} = $props();
 
-	const dispatch = createEventDispatcher();
+	let error = $state(false);
+	let program = $state<AssembledProgram | null>(null);
+	let machineState = $state(sim.state());
+	let log = $state<Action[]>([]);
+	let running = $state(false);
+	let hasBeenRun = $state(false);
+	let fastMode = $state(false);
+	let lockFastMode = $state(false);
 
-	let error = false;
-	let program: AssembledProgram | null = null;
-	let state = sim.state();
-	let log: Action[] = [];
-	let running = false;
-	let hasBeenRun = false;
-	let fastMode = false;
-	let lockFastMode = false;
-
-	$: canStepBack = log.length > 0;
-	$: sim.enableLog = !fastMode;
+	let canStepBack = $derived(log.length > 0);
+	$effect(() => {
+		sim.enableLog = !fastMode;
+	});
 
 	function forceUpdateState() {
-		state = sim.state();
+		machineState = sim.state();
 		log = [...sim.log];
-		dispatch('update', { state, log });
+		onUpdate(machineState, log);
 	}
 	const updateState = throttle(forceUpdateState, 50);
 
@@ -61,16 +89,16 @@
 				sim.load(result.assembled);
 				updateState();
 				program = result.assembled;
-				dispatch('assembled', { program });
+				onAssembled(program);
 			} catch (e) {
 				error = true;
-				dispatch('error', { message: (e as Error).message });
+				onError((e as Error).message);
 			}
 		} else {
 			error = true;
-			dispatch('error', {
-				message: `Failed to assemble program. ${result.errors[0].type} on line ${result.errors[0].line}.`,
-			});
+			onError(
+				`Failed to assemble program. ${result.errors[0].type} on line ${result.errors[0].line}.`,
+			);
 		}
 	}
 
@@ -84,7 +112,7 @@
 		}
 		if (breakpoints[line]) {
 			running = false;
-			dispatch('break', { line });
+			onBreak(line);
 		}
 	}
 
@@ -100,7 +128,7 @@
 		{ maxSteps: 100, delay: 0 },
 		{ maxSteps: Infinity, delay: 0 },
 	];
-	$: speedSetting = speeds[speed];
+	let speedSetting = $derived(speeds[speed]);
 	async function run() {
 		if (fastMode) {
 			runFast();
@@ -109,7 +137,7 @@
 		lockFastMode = true;
 		running = true;
 		hasBeenRun = true;
-		dispatch('action', { type: 'run' });
+		onAction('run');
 		while (running) {
 			const start = performance.now();
 			for (
@@ -131,7 +159,7 @@
 		lockFastMode = true;
 		running = true;
 		hasBeenRun = true;
-		dispatch('action', { type: 'run' });
+		onAction('run');
 		while (running) {
 			const actions = [];
 			const start = performance.now();
@@ -142,9 +170,9 @@
 			}
 			for (const action of actions) {
 				if (action?.type === 'output') {
-					dispatch('output', { index: 0, value: action.value });
+					onOutput(0, action.value);
 				} else if (action?.type === 'halt' && action.halt) {
-					dispatch('halt', { error: action.error });
+					onHalt(action.error);
 					running = false;
 				}
 			}
@@ -172,7 +200,7 @@
 	}
 
 	export function pause(reason?: string) {
-		dispatch('pause', { reason });
+		onPause(reason);
 		running = false;
 	}
 
@@ -182,7 +210,7 @@
 			const result = await doMicroStep();
 			if (result?.type === 'step-end') {
 				updateState();
-				dispatch('step', { didAction: result?.type === 'step-end' });
+				onStep(result?.type === 'step-end');
 				break;
 			}
 		}
@@ -196,7 +224,7 @@
 			if (result !== null && result.type !== 'step') {
 				updateState();
 				if (result.type !== 'halt') {
-					dispatch('microStep', { type: result.type });
+					onMicroStep(result.type);
 				}
 				break;
 			}
@@ -207,11 +235,11 @@
 	async function doMicroStep() {
 		const result = await sim.microStep();
 		if (result?.type === 'halt' && result.halt) {
-			dispatch('halt', { error: result.error });
+			onHalt(result.error);
 			running = false;
 			forceUpdateState();
 		} else if (result?.type === 'output') {
-			dispatch('output', { index: sim.log.length, value: result.value });
+			onOutput(sim.log.length, result.value);
 		}
 		return result;
 	}
@@ -219,7 +247,7 @@
 	function stepBack() {
 		sim.stepBack();
 		updateState();
-		dispatch('action', { type: 'stepBack' });
+		onAction('stepBack');
 	}
 
 	function microStepBack() {
@@ -230,7 +258,7 @@
 			}
 		}
 		updateState();
-		dispatch('action', { type: 'microStepBack' });
+		onAction('microStepBack');
 	}
 
 	function restart() {
@@ -239,7 +267,7 @@
 		hasBeenRun = false;
 		sim.resetRegisters();
 		updateState();
-		dispatch('action', { type: 'restart' });
+		onAction('restart');
 	}
 
 	export function editMemory(address: number, value: number) {
@@ -256,15 +284,17 @@
 <div class="controls">
 	<button
 		class="button"
-		class:is-info={codeModified || (program === null && !error) || state.halted}
+		class:is-info={codeModified ||
+			(program === null && !error) ||
+			machineState.halted}
 		class:is-danger={!codeModified && error}
 		title="Assemble the program and load it into memory"
-		on:click={assembleCode}
+		onclick={assembleCode}
 	>
 		<span class="icon"><Fa icon={faHammer} /></span>
 		<span>Assemble</span>
 	</button>
-	{#if state.halted}
+	{#if machineState.halted}
 		<button class="button" title="The simulator has halted" disabled>
 			<span>Halted</span>
 			<span class="icon"><Fa icon={faCheck} /></span>
@@ -274,8 +304,8 @@
 			class="button"
 			class:is-info={!codeModified && program}
 			title="Pause the simulator"
-			disabled={state.halted}
-			on:click={() => pause()}
+			disabled={machineState.halted}
+			onclick={() => pause()}
 		>
 			<span>Pause</span>
 			<span class="icon"><Fa icon={faPause} /></span>
@@ -287,7 +317,7 @@
 			title={hasBeenRun
 				? 'Unpause the simulator'
 				: 'Run the program until it halts'}
-			on:click={run}
+			onclick={run}
 		>
 			<span>
 				{#if hasBeenRun}
@@ -305,7 +335,7 @@
 			<button
 				class="button"
 				title="Rewind to the previous instruction"
-				on:click={stepBack}
+				onclick={stepBack}
 				disabled={running || !canStepBack}
 			>
 				<span class="icon">
@@ -317,8 +347,8 @@
 			<button
 				class="button"
 				title="Perform one instruction"
-				on:click={step}
-				disabled={state.halted || running}
+				onclick={step}
+				disabled={machineState.halted || running}
 			>
 				<span>Step</span>
 				<span class="icon">
@@ -333,7 +363,7 @@
 			<button
 				class="button"
 				title="Step back to previous micro instruction"
-				on:click={microStepBack}
+				onclick={microStepBack}
 				disabled={!canStepBack}
 			>
 				<span class="icon">
@@ -345,8 +375,8 @@
 			<button
 				class="button"
 				title="Perform one micro instruction"
-				on:click={microStep}
-				disabled={state.halted || running}
+				onclick={microStep}
+				disabled={machineState.halted || running}
 			>
 				<span>Micro step</span>
 				<span class="icon">
@@ -357,9 +387,9 @@
 	</div>
 	<button
 		class="button"
-		class:is-info={state.halted}
+		class:is-info={machineState.halted}
 		title="Reset the registers to their initial values"
-		on:click={restart}
+		onclick={restart}
 	>
 		<span class="icon"><Fa icon={faClockRotateLeft} /></span>
 		<span>Restart</span>
@@ -383,7 +413,7 @@
 			? `Cannot be toggled until the simulator is restarted.`
 			: `Click to ${fastMode ? 'disable' : 'enable'} running as fast as possible, disregarding breakpoints and the RTL log.`}
 		disabled={lockFastMode}
-		on:click={() => (fastMode = !fastMode)}
+		onclick={() => (fastMode = !fastMode)}
 	>
 		<span class="icon"><Fa icon={faForward} /></span>
 	</button>
