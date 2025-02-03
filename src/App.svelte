@@ -64,6 +64,7 @@
 	let addressHover = $state<number | null>(null);
 	let inputLogIndices = $state<number[]>([]);
 	let inputsPanel: InputsPanel | undefined;
+	let inputAlert = $state(false);
 	let showDataPath = $state(false);
 	let recentOpen = $state(false);
 	let fileInput: HTMLInputElement;
@@ -92,6 +93,7 @@
 
 	function setStatus(msg: string, cls?: string) {
 		statusText = { cls, msg };
+		inputAlert = false;
 	}
 
 	function onUpdate(newState: State, newLog: Action[]) {
@@ -152,6 +154,7 @@
 			$settings.inputsOpen = true;
 			await tick();
 			inputsPanel?.focus();
+			inputAlert = true;
 		} else if (reason === 'input-error') {
 			setStatus('Invalid input. Please edit and try again.', 'has-text-danger');
 			$settings.inputsOpen = true;
@@ -780,7 +783,11 @@
 							symbols={program?.symbols ?? {}}
 						/>
 					</CollapsiblePanel>
-					<CollapsiblePanel title="Inputs" bind:open={$settings.inputsOpen}>
+					<CollapsiblePanel
+						title="Inputs"
+						bind:open={$settings.inputsOpen}
+						alert={inputAlert}
+					>
 						<InputsPanel bind:this={inputsPanel} bind:inputs={project.inputs} />
 					</CollapsiblePanel>
 					<CollapsiblePanel title="Display" bind:open={$settings.displayOpen}>
