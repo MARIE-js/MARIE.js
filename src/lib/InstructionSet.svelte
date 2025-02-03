@@ -1,6 +1,32 @@
 <script lang="ts">
 	import { MarieSim } from '../marie';
 	import { hex } from '../utils';
+
+	const instructions = MarieSim.instructions.flatMap((instruction) => {
+		if (instruction.name === 'LoadImmi') {
+			return [
+				instruction,
+				{
+					name: 'Clear',
+					opcode: 0xa,
+					operand: false,
+					description: 'Alias for LoadImmi 0.\n\nAC ← 0',
+				},
+			];
+		}
+		if (instruction.name === 'JnS') {
+			return [
+				instruction,
+				{
+					name: 'Adr',
+					opcode: 0x0,
+					operand: true,
+					description: 'Alias for JnS X.',
+				},
+			];
+		}
+		return [instruction];
+	});
 </script>
 
 <div>
@@ -17,8 +43,8 @@
 		</p>
 		<p>
 			For instructions, the <code>Operand</code> may be a label, or a
-			hexadecimal value.<br />A leading zero is required if the first digit is
-			greater than 9.
+			hexadecimal value (which is usually an address).<br />A leading zero is
+			required if the first digit is greater than 9.
 		</p>
 		<p>A forward slash <code>/</code> denotes a line comment.</p>
 	</div>
@@ -57,10 +83,10 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each MarieSim.instructions as inst}
+			{#each instructions as inst}
 				<tr>
 					<td
-						><div>
+						><div class="name">
 							{inst.name}
 							{#if inst.operand}
 								X
@@ -80,6 +106,9 @@
 </div>
 
 <style>
+	.name {
+		white-space: nowrap;
+	}
 	.desc {
 		white-space: pre-wrap;
 	}

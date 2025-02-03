@@ -20,7 +20,7 @@ const syntax = simpleMode({
 		}, // Labels
 		{
 			regex:
-				/(?:add|subt|addi|load|loadi|store|storei|jump|skipcond|jns|jumpi|adr)\b\s*/i,
+				/(?:add|subt|addi|load|loadi|loadimmi|store|storei|jump|skipcond|jns|jumpi|adr)\b\s*/i,
 			token: 'keyword',
 			next: 'operand',
 		}, // Operator
@@ -159,6 +159,8 @@ export function getCompletions(
 			label: instruction.name,
 			info: `${instruction.name}${instruction.operand ? ' X' : ''}\n\n${instruction.description}`,
 		})),
+		{ label: 'Adr', info: 'Adr X\n\nAlias for JnS X.' },
+		{ label: 'Clear', info: 'Clear\n\nAlias for LoadImmi 0.' },
 	);
 	return {
 		from: nodeBefore.from,

@@ -115,8 +115,8 @@
 					case 'SUB':
 						read = 'SUB';
 						break;
-					case 'CLEAR':
-						read = null;
+					case 'LOAD_IMMI':
+						read = 'IR';
 						break;
 				}
 				write = 'AC';
