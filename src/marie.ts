@@ -32,7 +32,7 @@ export type State = {
 };
 
 /** Arithmetic operations which can be performed by the ALU */
-export type ArithmeticOperation = 'ADD' | 'SUB' | 'CLEAR';
+export type ArithmeticOperation = 'ADD' | 'SUB' | 'LOAD_IMMI';
 
 /** Comparison operations which can be performed by the ALU */
 export type ComparisonOperation = 'AC_NEG' | 'AC_ZERO' | 'AC_POS';
@@ -660,8 +660,8 @@ export class MarieSim {
 				this._registers.AC =
 					(this._registers.AC - this._registers.MBR) & 0xffff;
 				break;
-			case 'CLEAR':
-				this._registers.AC = 0;
+			case 'LOAD_IMMI':
+				this._registers.AC = this._registers.IR & 0xfff;
 				break;
 		}
 		return {
@@ -781,11 +781,12 @@ export class MarieSim {
 				'Use the contents at address X as the address of the value to add to the AC.\n\nAC ← AC + M[M[X]]',
 		},
 		{
-			name: 'Clear',
+			name: 'LoadImmi',
 			opcode: 0xa,
-			operand: false,
-			microSteps: [(sim) => sim.arithmeticOperation('CLEAR')],
-			description: 'Set the AC to 0.\n\nAC ← 0',
+			operand: true,
+			microSteps: [(sim) => sim.arithmeticOperation('LOAD_IMMI')],
+			description:
+				'Set the AC to the given 12-bit unsigned immediate value X.\n\nAC ← X',
 		},
 		{
 			name: 'Load',
@@ -1134,6 +1135,10 @@ export function assemble(code: string): AssemblyResult {
 				break;
 			case 'adr':
 				instruction.operator = 'jns';
+				break;
+			case 'clear':
+				instruction.operator = 'loadimmi';
+				instruction.operand = '0';
 				break;
 		}
 

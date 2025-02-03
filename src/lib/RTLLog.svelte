@@ -65,8 +65,8 @@
 						return 'AC ← AC + MBR';
 					case 'SUB':
 						return 'AC ← AC - MBR';
-					case 'CLEAR':
-						return 'AC ← 0';
+					case 'LOAD_IMMI':
+						return 'AC ← IR[11-0]';
 				}
 			case 'input':
 				return ['IN', dec(action.newInput)];
