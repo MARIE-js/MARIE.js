@@ -42,7 +42,7 @@
 
 	import { debounce, throttle } from 'lodash';
 	import { assemble, type AssemblyError } from '../marie';
-	import { getCompletions, marieLanguage, styles } from '../syntax';
+	import { getCompletions, getTooltip, marieLanguage, styles } from '../syntax';
 
 	let {
 		text = $bindable(''),
@@ -141,6 +141,7 @@
 					themeCompartment.of([]),
 					EditorView.updateListener.of(debounce(checkCode, 250)),
 					EditorView.updateListener.of(textUpdated),
+					getTooltip,
 				],
 			}),
 		});
