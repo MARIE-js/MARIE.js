@@ -111,7 +111,7 @@
 
 	function onError(message: string) {
 		codeModified = false;
-		setStatus(message, 'has-text-danger');
+		setStatus(message, 'has-text-danger-on-scheme');
 	}
 
 	function onBreak(line: number) {
@@ -121,7 +121,10 @@
 
 	function onHalt(error?: string) {
 		if (error) {
-			setStatus(`Machine halted abnormally: ${error}`);
+			setStatus(
+				`Machine halted abnormally: ${error}`,
+				'has-text-danger-on-scheme',
+			);
 		} else {
 			setStatus('Machine halted normally.');
 		}
@@ -149,14 +152,17 @@
 		if (reason === 'input-empty') {
 			setStatus(
 				'Input required. Please enter input and press continue.',
-				'has-text-warning',
+				'has-text-warning-on-scheme',
 			);
 			$settings.inputsOpen = true;
 			await tick();
 			inputsPanel?.focus();
 			inputAlert = true;
 		} else if (reason === 'input-error') {
-			setStatus('Invalid input. Please edit and try again.', 'has-text-danger');
+			setStatus(
+				'Invalid input. Please edit and try again.',
+				'has-text-danger-on-scheme',
+			);
 			$settings.inputsOpen = true;
 			await tick();
 			inputsPanel?.focus();
@@ -405,7 +411,7 @@
 			loadFromString(code);
 		} catch (e) {
 			console.error(e);
-			setStatus(`Error: ${e}`, 'has-text-danger');
+			setStatus(`Error: ${e}`, 'has-text-danger-on-scheme');
 		}
 		busyState--;
 		menuOpen = null;
