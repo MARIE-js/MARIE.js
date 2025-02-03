@@ -5,13 +5,19 @@
 	let {
 		title,
 		open = $bindable(false),
+		alert = false,
 		children,
-	}: { title: string; open?: boolean; children: Snippet } = $props();
+	}: {
+		title: string;
+		open?: boolean;
+		alert?: boolean;
+		children: Snippet;
+	} = $props();
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="top" onclick={() => (open = !open)}>
+<div class="top" class:alert onclick={() => (open = !open)}>
 	<span class="icon">
 		<Fa icon={open ? faCaretDown : faCaretRight} />
 	</span>
@@ -33,6 +39,26 @@
 		border-bottom: solid 1px var(--bulma-border);
 		cursor: pointer;
 		background-color: var(--bulma-scheme-main-bis);
+	}
+
+	@keyframes flash {
+		0% {
+			background-color: var(--bulma-scheme-main-bis);
+			color: var(--bulma-body-color);
+		}
+		70% {
+			background-color: var(--bulma-warning);
+			color: var(--bulma-warning-invert);
+		}
+	}
+
+	.alert {
+		animation-name: flash;
+		animation-duration: 0.3s;
+		animation-direction: alternate-reverse;
+		animation-iteration-count: 6;
+		background-color: var(--bulma-warning);
+		color: var(--bulma-warning-invert);
 	}
 	.bottom {
 		flex: 0 1 auto;
