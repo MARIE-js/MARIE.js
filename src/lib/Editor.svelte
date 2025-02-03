@@ -137,6 +137,7 @@
 					marieLanguage,
 					marieLanguage.data.of({
 						autocomplete: getCompletions,
+						commentTokens: { line: '/' },
 					}),
 					themeCompartment.of([]),
 					EditorView.updateListener.of(debounce(checkCode, 250)),
