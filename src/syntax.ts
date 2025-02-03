@@ -3,11 +3,13 @@ import {
 	StreamLanguage,
 	syntaxTree,
 } from '@codemirror/language';
+import { EditorState } from '@codemirror/state';
 import { simpleMode } from '@codemirror/legacy-modes/mode/simple-mode';
 import {
 	CompletionContext,
 	type CompletionResult,
 } from '@codemirror/autocomplete';
+import { hoverTooltip } from '@codemirror/view';
 import { MarieSim } from './marie';
 import { tags } from '@lezer/highlight';
 
@@ -91,6 +93,41 @@ export const styles = HighlightStyle.define([
 	{ tag: tags.number, color: 'var(--marie-syntax-number)' },
 ]);
 
+const instructions = [
+	...MarieSim.instructions.map((instruction) => ({
+		label: instruction.name,
+		info: `${instruction.name}${instruction.operand ? ' X' : ''}\n\n${instruction.description}`,
+	})),
+	{ label: 'Adr', info: 'Adr X\n\nAlias for JnS X.' },
+	{ label: 'Clear', info: 'Clear\n\nAlias for LoadImmi 0.' },
+];
+const instructionMap = instructions.reduce<{
+	[key: string]: { label: string; info: string };
+}>((acc, x) => ({ ...acc, [x.label.toLowerCase()]: x }), {});
+
+function getLabels(
+	node: ReturnType<typeof syntaxTree>['topNode'],
+	state: EditorState,
+) {
+	const result: { label: string; info: string }[] = [];
+	const cursor = node.cursor();
+	while (cursor.parent());
+	cursor.iterate((node) => {
+		if (node.name === 'labelName') {
+			const line = state.doc.lineAt(cursor.to).text;
+			const commaPos = line.indexOf(',');
+			const commentPos = line.indexOf('/');
+			const label = line.substring(0, commaPos).trim();
+			const data = line
+				.substring(commaPos + 1, commentPos === -1 ? undefined : commentPos)
+				.trim();
+			const info = `Address of '${data}'`;
+			result.push({ label, info });
+		}
+	});
+	return result;
+}
+
 export function getCompletions(
 	context: CompletionContext,
 ): CompletionResult | null {
@@ -107,21 +144,7 @@ export function getCompletions(
 			.toLowerCase();
 		const options: { label: string; info: string }[] = [];
 		if (MarieSim.instructionMap[operator]?.operand) {
-			const cursor = nodeBefore.cursor();
-			while (cursor.parent());
-			cursor.iterate((node) => {
-				if (node.name === 'labelName') {
-					const line = context.state.doc.lineAt(cursor.to).text;
-					const commaPos = line.indexOf(',');
-					const commentPos = line.indexOf('/');
-					const label = line.substring(0, commaPos).trim();
-					const data = line
-						.substring(commaPos + 1, commentPos === -1 ? undefined : commentPos)
-						.trim();
-					const info = `Address of '${data}'`;
-					options.push({ label, info });
-				}
-			});
+			options.push(...getLabels(nodeBefore, context.state));
 			return {
 				from: nodeBefore.from,
 				options,
@@ -154,16 +177,50 @@ export function getCompletions(
 			info: 'ORG X\n\nStarting address for program.',
 		});
 	}
-	options.push(
-		...MarieSim.instructions.map((instruction) => ({
-			label: instruction.name,
-			info: `${instruction.name}${instruction.operand ? ' X' : ''}\n\n${instruction.description}`,
-		})),
-		{ label: 'Adr', info: 'Adr X\n\nAlias for JnS X.' },
-		{ label: 'Clear', info: 'Clear\n\nAlias for LoadImmi 0.' },
-	);
+	options.push(...instructions);
 	return {
 		from: nodeBefore.from,
 		options,
 	};
 }
+
+export const getTooltip = hoverTooltip((view, pos, side) => {
+	const node = syntaxTree(view.state).resolveInner(pos, -1);
+	if (node.name === 'keyword') {
+		const name = view.state.doc
+			.sliceString(node.from, node.to)
+			.trim()
+			.toLowerCase();
+		const instruction = instructionMap[name];
+		if (instruction) {
+			return {
+				pos: node.from,
+				end: node.to,
+				above: true,
+				create(_view) {
+					const dom = document.createElement('div');
+					dom.style.whiteSpace = 'pre-wrap';
+					dom.textContent = instruction.info;
+					return { dom };
+				},
+			};
+		}
+	} else if (node.name === 'name') {
+		const name = view.state.doc.sliceString(node.from, node.to).trim();
+		const label = getLabels(node, view.state).find((l) => l.label === name);
+		if (label) {
+			return {
+				pos: node.from,
+				end: node.to,
+				above: true,
+				create(_view) {
+					const dom = document.createElement('div');
+					dom.style.whiteSpace = 'pre-wrap';
+					dom.textContent = label.info;
+					return { dom };
+				},
+			};
+		}
+	}
+	return null;
+});
