@@ -35,7 +35,11 @@ export type State = {
 export type ArithmeticOperation = 'ADD' | 'SUB' | 'LOAD_IMMI';
 
 /** Comparison operations which can be performed by the ALU */
-export type ComparisonOperation = 'AC_NEG' | 'AC_ZERO' | 'AC_POS';
+export type ComparisonOperation =
+	| 'AC_NEG'
+	| 'AC_ZERO'
+	| 'AC_POS'
+	| 'AC_NON_ZERO';
 
 /** Actions recorded in the replay log */
 export type Action =
@@ -686,6 +690,9 @@ export class MarieSim {
 			case 'AC_POS':
 				result = this._registers.AC !== 0 && this._registers.AC >> 15 === 0;
 				break;
+			case 'AC_NON_ZERO':
+				result = this._registers.AC !== 0;
+				break;
 		}
 		const oldResult = this._comparisonResult;
 		this._comparisonResult = result;
@@ -881,6 +888,8 @@ export class MarieSim {
 							return sim.comparisonOperation('AC_ZERO');
 						case 0x800:
 							return sim.comparisonOperation('AC_POS');
+						case 0xc00:
+							return sim.comparisonOperation('AC_NON_ZERO');
 
 						default:
 							sim._halted = true;
@@ -898,7 +907,7 @@ export class MarieSim {
 				(sim) => (sim._comparisonResult ? sim.incrementPC() : null),
 			],
 			description:
-				'Skip the next instruction if the condition indicated by X holds:\n- 000: Skip if AC < 0\n- 400: Skip if AC = 0\n- 800: Skip if AC > 0',
+				'Skip the next instruction if the condition indicated by X holds:\n- 000: Skip if AC < 0\n- 400: Skip if AC = 0\n- 800: Skip if AC > 0\n- 0C00: Skip if AC ≠ 0',
 		},
 		{
 			name: 'JnS',

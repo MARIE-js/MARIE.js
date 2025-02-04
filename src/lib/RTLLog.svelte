@@ -58,6 +58,8 @@
 						return `Is AC = 0? ${action.result ? 'Yes!' : 'No'}`;
 					case 'AC_POS':
 						return `Is AC > 0? ${action.result ? 'Yes!' : 'No'}`;
+					case 'AC_NON_ZERO':
+						return `Is AC ≠ 0? ${action.result ? 'Yes!' : 'No'}`;
 				}
 			case 'arithmetic':
 				switch (action.operation) {
