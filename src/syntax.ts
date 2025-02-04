@@ -105,26 +105,32 @@ const instructionMap = instructions.reduce<{
 	[key: string]: { label: string; info: string };
 }>((acc, x) => ({ ...acc, [x.label.toLowerCase()]: x }), {});
 
-function getLabels(
-	node: ReturnType<typeof syntaxTree>['topNode'],
-	state: EditorState,
-) {
+const asmDirectives = {
+	dec: { label: 'DEC', info: 'DEC X\n\nSigned or unsigned decimal value X.' },
+	hex: { label: 'HEX', info: 'HEX X\n\nHexadecimal value X.' },
+	oct: { label: 'OCT', info: 'OCT X\n\nOctal value X.' },
+};
+const orgDirective = {
+	label: 'ORG',
+	info: 'ORG X\n\nStarting address for program.',
+};
+
+function getLabels(state: EditorState) {
 	const result: { label: string; info: string }[] = [];
-	const cursor = node.cursor();
-	while (cursor.parent());
-	cursor.iterate((node) => {
-		if (node.name === 'labelName') {
-			const line = state.doc.lineAt(cursor.to).text;
-			const commaPos = line.indexOf(',');
-			const commentPos = line.indexOf('/');
-			const label = line.substring(0, commaPos).trim();
+	let i = 1;
+	for (const line of state.doc.iterLines()) {
+		const comma = line.indexOf(',');
+		const comment = line.indexOf('/');
+		if (comma !== -1 && (comment === -1 || comma < comment)) {
+			const label = line.substring(0, comma).trim();
 			const data = line
-				.substring(commaPos + 1, commentPos === -1 ? undefined : commentPos)
+				.substring(comma + 1, comment === -1 ? undefined : comment)
 				.trim();
-			const info = `Address of '${data}'`;
+			const info = `Address of line ${i} (${data})`;
 			result.push({ label, info });
 		}
-	});
+		i++;
+	}
 	return result;
 }
 
@@ -137,55 +143,89 @@ export function getCompletions(
 		!previous ||
 		context.state.doc.lineAt(previous.to).number <
 			context.state.doc.lineAt(nodeBefore.from).number;
-	if (!atStart && previous?.name === 'keyword') {
-		const operator = context.state.doc
-			.sliceString(previous.from, previous.to)
-			.trim()
-			.toLowerCase();
+	const [nodeType, nodeValue, position] = (() => {
+		const text = context.state.doc
+			.sliceString(nodeBefore.from, nodeBefore.to)
+			.toLowerCase()
+			.trimStart();
+		const textTrimmed = text.trimEnd();
+		const hasTrailingSpace = textTrimmed.length < text.length;
+
+		if (atStart) {
+			return [
+				nodeBefore.name === 'invalid' || !hasTrailingSpace
+					? 'start'
+					: nodeBefore.name,
+				textTrimmed,
+				hasTrailingSpace ? nodeBefore.to : nodeBefore.from,
+			];
+		}
+
+		if (hasTrailingSpace) {
+			return [nodeBefore.name, textTrimmed, nodeBefore.to];
+		}
+		return [
+			previous.name,
+			context.state.doc
+				.sliceString(previous.from, previous.to)
+				.toLowerCase()
+				.trim(),
+			nodeBefore.from,
+		];
+	})();
+
+	if (nodeType === 'start' || nodeType === 'labelName') {
+		const cursor = nodeBefore.cursor();
+		let hasOrigin = false;
+		while (cursor.prevSibling()) {
+			if (
+				cursor.name === 'processingInstruction' &&
+				context.state.doc
+					.sliceString(cursor.from, cursor.to)
+					.trim()
+					.toLowerCase() === 'org'
+			) {
+				hasOrigin = true;
+				break;
+			}
+		}
+		const options = [asmDirectives.dec, asmDirectives.hex, asmDirectives.oct];
+		if (!hasOrigin && nodeType === 'start') {
+			options.push(orgDirective);
+		}
+		options.push(...instructions);
+		return {
+			from: position,
+			options,
+		};
+	}
+
+	if (nodeType === 'keyword') {
 		const options: { label: string; info: string }[] = [];
-		if (MarieSim.instructionMap[operator]?.operand) {
-			options.push(...getLabels(nodeBefore, context.state));
+		if (nodeValue === 'skipcond') {
+			options.push({ label: '000', info: 'Skip if AC < 0' });
+			options.push({ label: '400', info: 'Skip if AC = 0' });
+			options.push({ label: '800', info: 'Skip if AC > 0' });
+			options.push({ label: '0C00', info: 'Skip if AC ≠ 0' });
 			return {
-				from: nodeBefore.from,
+				from: position,
 				options,
 			};
 		}
-		return null;
-	}
-	const cursor = nodeBefore.cursor();
-	let hasOrigin = false;
-	while (cursor.prevSibling()) {
-		if (
-			cursor.name === 'processingInstruction' &&
-			context.state.doc
-				.sliceString(cursor.from, cursor.to)
-				.trim()
-				.toLowerCase() === 'org'
-		) {
-			hasOrigin = true;
-			break;
+		if (MarieSim.instructionMap[nodeValue]?.operand) {
+			options.push(...getLabels(context.state));
+			return {
+				from: position,
+				options,
+			};
 		}
 	}
-	const options = [
-		{ label: 'DEC', info: 'DEC X\n\nSigned or unsigned decimal value X.' },
-		{ label: 'HEX', info: 'HEX X\n\nHexadecimal value X.' },
-		{ label: 'OCT', info: 'OCT X\n\nOctal value X.' },
-	];
-	if (!hasOrigin) {
-		options.push({
-			label: 'ORG',
-			info: 'ORG X\n\nStarting address for program.',
-		});
-	}
-	options.push(...instructions);
-	return {
-		from: nodeBefore.from,
-		options,
-	};
+
+	return null;
 }
 
 export const getTooltip = hoverTooltip((view, pos, side) => {
-	const node = syntaxTree(view.state).resolveInner(pos, -1);
+	const node = syntaxTree(view.state).resolveInner(pos, side);
 	if (node.name === 'keyword') {
 		const name = view.state.doc
 			.sliceString(node.from, node.to)
@@ -207,7 +247,7 @@ export const getTooltip = hoverTooltip((view, pos, side) => {
 		}
 	} else if (node.name === 'name') {
 		const name = view.state.doc.sliceString(node.from, node.to).trim();
-		const label = getLabels(node, view.state).find((l) => l.label === name);
+		const label = getLabels(view.state).find((l) => l.label === name);
 		if (label) {
 			return {
 				pos: node.from,
@@ -217,6 +257,29 @@ export const getTooltip = hoverTooltip((view, pos, side) => {
 					const dom = document.createElement('div');
 					dom.style.whiteSpace = 'pre-wrap';
 					dom.textContent = label.info;
+					return { dom };
+				},
+			};
+		}
+	} else if (node.name === 'processingInstruction') {
+		const name = view.state.doc
+			.sliceString(node.from, node.to)
+			.trim()
+			.toLowerCase();
+		const directive = (
+			asmDirectives as {
+				[key: string]: { label: string; info: string } | undefined;
+			}
+		)[name];
+		if (directive) {
+			return {
+				pos: node.from,
+				end: node.to,
+				above: true,
+				create(_view) {
+					const dom = document.createElement('div');
+					dom.style.whiteSpace = 'pre-wrap';
+					dom.textContent = directive.info;
 					return { dom };
 				},
 			};
