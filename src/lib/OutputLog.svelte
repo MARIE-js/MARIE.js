@@ -62,20 +62,22 @@
 			</select>
 		</div>
 	</div>
-	<div class="log" bind:this={element}>
-		{#if outputs.length === 0}
-			<div class="has-text-centered has-text-grey">(no output)</div>
-		{:else if outputMode === 'unicode'}
-			<div class="unicode">
-				{showUnicode(outputs)}
-			</div>
-		{:else}
-			{#each outputs as output}
-				<div class="output">
-					{showValue(outputMode, output)}
+	<div class="log">
+		<div class="log-inner" bind:this={element}>
+			{#if outputs.length === 0}
+				<div class="has-text-centered has-text-grey">(no output)</div>
+			{:else if outputMode === 'unicode'}
+				<div class="unicode">
+					{showUnicode(outputs)}
 				</div>
-			{/each}
-		{/if}
+			{:else}
+				{#each outputs as output}
+					<div class="output">
+						{showValue(outputMode, output)}
+					</div>
+				{/each}
+			{/if}
+		</div>
 	</div>
 </div>
 
@@ -91,12 +93,15 @@
 		flex: 0 0 auto;
 	}
 	.log {
+		overflow: hidden;
 		flex: 1 1 auto;
-		overflow: auto;
-		padding: 1rem;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
+	}
+	.log-inner {
+		overflow: auto;
+		padding: 1rem;
 	}
 	.output {
 		text-align: right;
