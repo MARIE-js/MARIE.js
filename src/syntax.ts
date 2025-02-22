@@ -43,7 +43,7 @@ const syntax = simpleMode({
 	operator: [
 		{
 			regex:
-				/(?:add|subt|addi|load|loadi|store|storei|jump|skipcond|jns|jumpi|adr)\b\s*/i,
+				/(?:add|subt|addi|load|loadi|loadimmi|store|storei|jump|skipcond|jns|jumpi|adr)\b\s*/i,
 			token: 'keyword',
 			next: 'operand',
 		}, // Operator
@@ -114,6 +114,13 @@ const orgDirective = {
 	label: 'ORG',
 	info: 'ORG X\n\nStarting address for program.',
 };
+
+const skipConditions = [
+	{ label: '000', info: 'Skip if AC < 0' },
+	{ label: '400', info: 'Skip if AC = 0' },
+	{ label: '800', info: 'Skip if AC > 0' },
+	{ label: '0C00', info: 'Skip if AC ≠ 0' },
+];
 
 function getLabels(state: EditorState) {
 	const result: { label: string; info: string }[] = [];
@@ -201,22 +208,16 @@ export function getCompletions(
 	}
 
 	if (nodeType === 'keyword') {
-		const options: { label: string; info: string }[] = [];
 		if (nodeValue === 'skipcond') {
-			options.push({ label: '000', info: 'Skip if AC < 0' });
-			options.push({ label: '400', info: 'Skip if AC = 0' });
-			options.push({ label: '800', info: 'Skip if AC > 0' });
-			options.push({ label: '0C00', info: 'Skip if AC ≠ 0' });
 			return {
 				from: position,
-				options,
+				options: skipConditions,
 			};
 		}
 		if (MarieSim.instructionMap[nodeValue]?.operand) {
-			options.push(...getLabels(context.state));
 			return {
 				from: position,
-				options,
+				options: getLabels(context.state),
 			};
 		}
 	}
@@ -283,6 +284,37 @@ export const getTooltip = hoverTooltip((view, pos, side) => {
 					return { dom };
 				},
 			};
+		}
+	} else if (
+		node.name === 'number' &&
+		node.prevSibling &&
+		node.prevSibling.name === 'keyword'
+	) {
+		const instruction = view.state.doc
+			.sliceString(node.prevSibling.from, node.prevSibling.to)
+			.trim()
+			.toLowerCase();
+		if (instruction === 'skipcond') {
+			const value = view.state.doc
+				.sliceString(node.from, node.to)
+				.trim()
+				.toLowerCase();
+			const condition = skipConditions.find(
+				(c) => c.label.toLowerCase() === value,
+			);
+			if (condition) {
+				return {
+					pos: node.from,
+					end: node.to,
+					above: true,
+					create(_view) {
+						const dom = document.createElement('div');
+						dom.style.whiteSpace = 'pre-wrap';
+						dom.textContent = condition.info;
+						return { dom };
+					},
+				};
+			}
 		}
 	}
 	return null;
