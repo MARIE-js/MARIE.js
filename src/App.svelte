@@ -304,7 +304,7 @@
 		const a = document.createElement('a');
 		a.style.display = 'none';
 		a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(project.code)}`;
-		a.download = 'code.mar';
+		a.download = 'code.mas';
 		document.body.appendChild(a);
 		a.click();
 		a.remove();
@@ -830,7 +830,7 @@
 		bind:this={fileInput}
 		bind:files
 		onchange={uploaded}
-		accept=".mar"
+		accept=".mas,.mar"
 	/>
 	<Spinner active={isLoading} />
 </main>
