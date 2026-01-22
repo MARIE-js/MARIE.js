@@ -1,7 +1,7 @@
 {
 	"name": "marie-js",
 	"private": true,
-	"version": "2.2.0",
+	"version": "2.2.1",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -13,29 +13,29 @@
 		"test": "vitest"
 	},
 	"devDependencies": {
-		"@sveltejs/vite-plugin-svelte": "^5.0.3",
-		"@tsconfig/svelte": "^5.0.4",
-		"@types/lodash": "^4.17.16",
-		"@types/node": "^22.14.0",
-		"prettier": "^3.5.3",
-		"prettier-plugin-svelte": "^3.3.3",
-		"svelte": "^5.25.6",
-		"svelte-check": "^4.1.5",
+		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@tsconfig/svelte": "^5.0.6",
+		"@types/lodash": "^4.17.23",
+		"@types/node": "^25.0.10",
+		"prettier": "^3.8.1",
+		"prettier-plugin-svelte": "^3.4.1",
+		"svelte": "^5.47.1",
+		"svelte-check": "^4.3.5",
 		"tslib": "^2.8.1",
-		"typescript": "^5.8.2",
-		"vite": "^6.2.4",
-		"vitest": "^3.1.1"
+		"typescript": "^5.9.3",
+		"vite": "^7.3.1",
+		"vitest": "^4.0.17"
 	},
 	"dependencies": {
-		"@codemirror/commands": "^6.8.1",
-		"@codemirror/language": "^6.11.0",
-		"@codemirror/legacy-modes": "^6.5.0",
-		"@fortawesome/free-brands-svg-icons": "^6.7.2",
-		"@fortawesome/free-solid-svg-icons": "^6.7.2",
-		"bulma": "^1.0.3",
-		"codemirror": "^6.0.1",
-		"lodash": "^4.17.21",
+		"@codemirror/commands": "^6.10.1",
+		"@codemirror/language": "^6.12.1",
+		"@codemirror/legacy-modes": "^6.5.2",
+		"@fortawesome/free-brands-svg-icons": "^7.1.0",
+		"@fortawesome/free-solid-svg-icons": "^7.1.0",
+		"bulma": "^1.0.4",
+		"codemirror": "^6.0.2",
+		"lodash": "^4.17.23",
 		"split.js": "^1.6.5",
-		"svelte-fa": "^4.0.3"
+		"svelte-fa": "^4.0.4"
 	}
 }
