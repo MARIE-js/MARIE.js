@@ -34,7 +34,7 @@
 		"@fortawesome/free-solid-svg-icons": "^7.1.0",
 		"bulma": "^1.0.4",
 		"codemirror": "^6.0.2",
-		"lodash": "^4.17.23",
+		"lodash": "^4.18.1",
 		"split.js": "^1.6.5",
 		"svelte-fa": "^4.0.4"
 	}
