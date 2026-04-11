@@ -11,7 +11,7 @@
 </script>
 
 <div class="display">
-	<div>16x16 display, 0xF00-0xFFF:</div>
+	<div>16x16 display, 0xF00-0xFFF. Pixel: R[14-10] G[9-5] B[4-0]</div>
 	<div class="pixels">
 		{#each [...Array(16)].map((_, i) => i) as i}
 			<div class="row">
