@@ -78,15 +78,17 @@
 		return null;
 	}
 
-	async function update(steps: Step[]) {
-		startStep = Math.max(0, steps.length - 5);
+	let actionCount = $derived(steps.reduce((n, s) => n + s.actions.length, 0));
+
+	async function update(_steps: Step[], _actionCount: number) {
+		startStep = Math.max(0, _steps.length - 5);
 		await tick();
 		if (element) {
 			element.scrollTo(0, element.scrollHeight);
 		}
 	}
 	$effect(() => {
-		update(steps);
+		update(steps, actionCount);
 	});
 
 	async function showPrevious() {
