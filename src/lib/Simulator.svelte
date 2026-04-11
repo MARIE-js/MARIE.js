@@ -112,6 +112,7 @@
 		}
 		if (breakpoints[line]) {
 			running = false;
+			forceUpdateState();
 			onBreak(line);
 		}
 	}
