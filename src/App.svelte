@@ -175,11 +175,13 @@
 	function onStep(didAction: boolean) {
 		if (didAction) {
 			setStatus('Executed one step.');
+			editor?.scrollToPC();
 		}
 	}
 	function onMicroStep(type?: string) {
 		if (type === 'step-end') {
 			setStatus('Completed executing instruction.');
+			editor?.scrollToPC();
 		} else {
 			setStatus('Executed one microstep.');
 		}
